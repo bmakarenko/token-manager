@@ -3,7 +3,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Rutoken Manager
-Name[ru]=Ключевые носители
+Name[ru]=Ключевые носители и сертификаты
 Comment[ru]=Установить сертификаты с ключевых носителей
 Comment=Install Rutoken certificates
 Exec=python /usr/bin/rutoken-manager.py
