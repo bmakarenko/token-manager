@@ -1,0 +1,15 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Encoding=UTF-8
+Name=Rutoken Manager
+Name[ru]=Ключевые носители
+Comment[ru]=Установить сертификаты с ключевых носителей
+Comment=Install Rutoken certificates
+Exec=python /usr/bin/rutoken-manager.py
+Terminal=false
+Type=Application
+Icon=rutoken-manager
+StartupNotify=true
+X-Desktop-File-Install-Version=0.15
+Categories=Qt;HardwareSettings;Settings;System;
