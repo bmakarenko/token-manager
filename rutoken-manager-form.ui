@@ -31,7 +31,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../Загрузки/4.png</normaloff>../../Загрузки/4.png</iconset>
+    <normaloff>rutoken-manager.png</normaloff>rutoken-manager.png</iconset>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -153,7 +153,36 @@
    <property name="defaultUp">
     <bool>false</bool>
    </property>
+   <widget class="QMenu" name="operations">
+    <property name="title">
+     <string>Операции</string>
+    </property>
+    <addaction name="add_license"/>
+    <addaction name="install_root_certs"/>
+    <addaction name="install_crl"/>
+   </widget>
+   <addaction name="operations"/>
   </widget>
+  <action name="add_license">
+   <property name="text">
+    <string>Ввод лицензии Крипто Про CSP</string>
+   </property>
+  </action>
+  <action name="install_root_certs">
+   <property name="text">
+    <string>Установка корневых сертификатов</string>
+   </property>
+  </action>
+  <action name="install_crl">
+   <property name="text">
+    <string>Установка списков отозванных сертификатов</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>about</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

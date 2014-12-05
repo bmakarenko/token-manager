@@ -114,17 +114,21 @@ def inst_cert(cert):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(350, 370)
+        MainWindow.resize(344, 370)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QtCore.QSize(350, 0))
+        MainWindow.setMinimumSize(QtCore.QSize(344, 0))
         MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icon/4.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("rutoken-manager.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
+        MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
+        MainWindow.setAutoFillBackground(False)
+        MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
+        MainWindow.setDocumentMode(False)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.centralwidget)
@@ -173,21 +177,37 @@ class Ui_MainWindow(object):
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 344, 21))
         self.menuBar.setDefaultUp(False)
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
+        self.operations = QtGui.QMenu(self.menuBar)
+        self.operations.setObjectName(_fromUtf8("operations"))
         MainWindow.setMenuBar(self.menuBar)
+        self.add_license = QtGui.QAction(MainWindow)
+        self.add_license.setObjectName(_fromUtf8("add_license"))
+        self.install_root_certs = QtGui.QAction(MainWindow)
+        self.install_root_certs.setObjectName(_fromUtf8("install_root_certs"))
+        self.install_crl = QtGui.QAction(MainWindow)
+        self.install_crl.setObjectName(_fromUtf8("install_crl"))
+        self.actionAbout = QtGui.QAction(MainWindow)
+        self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
+        self.operations.addAction(self.add_license)
+        self.operations.addAction(self.install_root_certs)
+        self.operations.addAction(self.install_crl)
+        self.menuBar.addAction(self.operations.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "rutoken-manager", None))
-        self.label.setText(
-            _translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
+        self.label.setText(_translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
         self.token_refresh.setText(_translate("MainWindow", "Обновить", None))
-        self.label_2.setText(
-            _translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
+        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
         self.cert_view.setText(_translate("MainWindow", "Просмотр", None))
         self.cert_install.setText(_translate("MainWindow", "Установить", None))
-
+        self.operations.setTitle(_translate("MainWindow", "Операции", None))
+        self.add_license.setText(_translate("MainWindow", "Ввод лицензии Крипто Про CSP", None))
+        self.install_root_certs.setText(_translate("MainWindow", "Установка корневых сертификатов", None))
+        self.install_crl.setText(_translate("MainWindow", "Установка списков отозванных сертификатов", None))
+        self.actionAbout.setText(_translate("MainWindow", "about", None))
 
 class Ui_cert_view(object):
     def setupUi(self, cert_view):
@@ -298,7 +318,6 @@ class MainWindow(QtGui.QMainWindow):
 def main():
     app = QtGui.QApplication(sys.argv)
     ex = MainWindow()
-
     sys.exit(app.exec_())
 
 
