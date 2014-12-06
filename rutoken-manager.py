@@ -44,6 +44,7 @@ from PyQt4 import QtCore
 from PyQt4 import QtGui
 import subprocess
 import platform
+import re
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -74,12 +75,13 @@ elif platform.machine() == 'i686':
 else:
     exit()
 
+
 def get_token():
     list_pcsc = subprocess.Popen(['/opt/cprocsp/bin/%s/list_pcsc' % arch], stdout=subprocess.PIPE)
     output = list_pcsc.communicate()[0]
     if list_pcsc.returncode:
-        return (u'<ключевых носителей не обнаружено>', 1)
-    return (output.replace("available reader: ", "").replace("\n", ""), 0)
+        return u'<ключевых носителей не обнаружено>', 1
+    return output.replace("available reader: ", "").replace("\n", ""), 0
 
 
 def get_certs(token):
@@ -88,19 +90,19 @@ def get_certs(token):
     output = csptest.communicate()[0]
     certs = []
     if csptest.returncode:
-        return (u'Ошибка', 1)
+        return u'Ошибка', 1
     for line in output.split("\n"):
         if token in line:
             certs.append(line)
-    return (certs, 0)
+    return certs, 0
 
 
 def list_cert(cert):
     certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-cont', cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     if certmgr.returncode:
-        return (output.split("\n")[-1], 1)
-    return (output.decode('utf-8'), 0)
+        return output.split("\n")[-1], 1
+    return output.decode('utf-8'), 0
 
 
 def inst_cert(cert):
@@ -109,6 +111,15 @@ def inst_cert(cert):
     if certmgr.returncode:
         return output.split("\n")[-1]
     return u"Сертификат успешно установлен"
+
+
+def set_license(cpro_license):
+    certmgr = subprocess.Popen(['/opt/cprocsp/sbin/amd64/cpconfig', '-license', '-set', cpro_license],
+                               stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    if certmgr.returncode:
+        return output.split("\n")[-1], 1
+    return None, 0
 
 
 class Ui_MainWindow(object):
@@ -198,9 +209,11 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "rutoken-manager", None))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
+        self.label.setText(
+            _translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
         self.token_refresh.setText(_translate("MainWindow", "Обновить", None))
-        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
+        self.label_2.setText(
+            _translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
         self.cert_view.setText(_translate("MainWindow", "Просмотр", None))
         self.cert_install.setText(_translate("MainWindow", "Установить", None))
         self.operations.setTitle(_translate("MainWindow", "Операции", None))
@@ -208,6 +221,7 @@ class Ui_MainWindow(object):
         self.install_root_certs.setText(_translate("MainWindow", "Установка корневых сертификатов", None))
         self.install_crl.setText(_translate("MainWindow", "Установка списков отозванных сертификатов", None))
         self.actionAbout.setText(_translate("MainWindow", "about", None))
+
 
 class Ui_cert_view(object):
     def setupUi(self, cert_view):
@@ -255,64 +269,76 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.menuBar.addAction(aboutAction)
         self.ui.cert_install.setEnabled(False)
         self.ui.cert_view.setEnabled(False)
-        self.refresh_token()
+        # self.refresh_token()
         self.ui.token_refresh.clicked.connect(self.refresh_token)
         self.ui.token_list.clicked.connect(self.select_token)
         self.ui.cert_view.clicked.connect(self.view_cert)
         self.ui.cert_list.clicked.connect(self.select_cert)
         self.ui.cert_install.clicked.connect(self.install_cert)
+        self.ui.add_license.triggered.connect(self.enter_license)
         self.show()
+
+    def enter_license(self):
+        cpro_license, ok = QtGui.QInputDialog.getText(self, u'Лицензия КриптоПро',
+                                                      u'Введите лицензионный ключ:')
+        if ok:
+            m = re.match('[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}', cpro_license)
+            if m:
+                set_license(cpro_license)
+            else:
+                QtGui.QMessageBox.warning(self, u"Ошибка", u"Лицензионный ключ введен неверно!")
 
     def install_cert(self):
         ret = inst_cert(self.cert)
-        QtGui.QMessageBox.about(self, u"Сообщение", ret)
+        QtGui.QMessageBox.information(self, u"Сообщение", ret)
 
     def select_cert(self, index):
         self.ui.cert_install.setEnabled(True)
         self.ui.cert_view.setEnabled(True)
-        self.cert = "\\\\.\\%s\\%s" % (self.token, str(index.data().toString()))
+        self.cert = r"\\.\%s\%s" % (self.token, str(index.data().toString()))
 
     def select_token(self, index):
         self.token = str(index.data().toString())
         model = QtGui.QStringListModel()
-        list = QtCore.QStringList()
+        cert_list = QtCore.QStringList()
         certs = get_certs(str(index.data().toString()))[0]
         for cert in certs:
-            list.append(cert.split('\\')[-1])
-        model.setStringList(list)
+            cert_list.append(cert.split('\\')[-1])
+        model.setStringList(cert_list)
         self.ui.cert_list.setModel(model)
 
     def view_cert(self):
         cert_info = list_cert(self.cert)
         cert_view = ViewCert()
         model = QtGui.QStringListModel()
-        list = QtCore.QStringList()
-        list.append(QtCore.QString(self.cert))
+        cert_list = QtCore.QStringList()
+        cert_list.append(QtCore.QString(self.cert))
         for line in cert_info[0].split("\n"):
             for param in line.split(", "):
-                list.append(QtCore.QString(param))
-        model.setStringList(list)
+                cert_list.append(QtCore.QString(param))
+        model.setStringList(cert_list)
         cert_view.ui.cert_listview.setModel(model)
         cert_view.exec_()
 
     def refresh_token(self):
         token = get_token()
         model = QtGui.QStringListModel()
-        list = QtCore.QStringList()
-        list.append(QtCore.QString(token[0]))
+        token_list = QtCore.QStringList()
+        token_list.append(QtCore.QString(token[0]))
         if token[1]:
             self.ui.token_list.setEnabled(False)
             self.ui.cert_list.clearSelection()
         else:
             self.ui.token_list.setEnabled(True)
-        model.setStringList(list)
+        model.setStringList(token_list)
         self.ui.token_list.setModel(model)
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
                                 u"<b>rutoken-manager 0.1</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
-                                u" краю<br>E-mail: <a href='mailto:infotdel@r24.fssprus.ru'>infotdel@r24.fssprus.ru</a>,"
-                                u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br><a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")
+                                u" краю<br>E-mail: <a href='mailto:infotdel@r24.fssprus.ru'>infotdel@r24.fssprus.ru</a>"
+                                u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
+                                u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")
 
 
 def main():
