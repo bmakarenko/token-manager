@@ -31,7 +31,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>rutoken-manager.png</normaloff>rutoken-manager.png</iconset>
+    <normaloff>/usr/share/pixmaps/rutoken-manager.png</normaloff>/usr/share/pixmaps/rutoken-manager.png</iconset>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
