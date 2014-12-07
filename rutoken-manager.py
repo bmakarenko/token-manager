@@ -128,6 +128,15 @@ def get_license():
     return output
 
 
+def install_root_cert(file):
+    subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', 'root', '-file', file],
+                     stdout=subprocess.PIPE)
+
+
+def install_crl(file):
+    subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-crl', '-store', 'root', '-file', file],
+                     stdout=subprocess.PIPE)
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
@@ -292,12 +301,12 @@ class MainWindow(QtGui.QMainWindow):
     def open_crl(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.crl")
         for filename in file_names:
-            print unicode(filename)
+            print install_crl(unicode(filename))
 
     def open_root_certs(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.cer")
         for filename in file_names:
-            print unicode(filename)
+            install_root_cert(unicode(filename))
 
     def view_license(self):
         license_info = get_license()
