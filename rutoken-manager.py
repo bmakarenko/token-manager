@@ -285,7 +285,19 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.cert_install.clicked.connect(self.install_cert)
         self.ui.add_license.triggered.connect(self.enter_license)
         self.ui.view_license.triggered.connect(self.view_license)
+        self.ui.install_root_certs.triggered.connect(self.open_root_certs)
+        self.ui.install_crl.triggered.connect(self.open_crl)
         self.show()
+
+    def open_crl(self):
+        file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.crl")
+        for filename in file_names:
+            print unicode(filename)
+
+    def open_root_certs(self):
+        file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.cer")
+        for filename in file_names:
+            print unicode(filename)
 
     def view_license(self):
         license_info = get_license()
