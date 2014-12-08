@@ -49,5 +49,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Mon Dec 08 2014 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.2
+- Added features: Set license, View license, Install root certificate, Install CRL
+
 * Thu Dec 04 2014 Boris Makarenko <bmakarenko90@gmail.com>
 - Initial build

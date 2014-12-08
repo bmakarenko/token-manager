@@ -122,6 +122,7 @@ def set_license(cpro_license):
     return None, 0
 
 
+
 def get_license():
     cpconfig = subprocess.Popen(['/opt/cprocsp/sbin/%s/cpconfig' % arch, '-license', '-view'], stdout=subprocess.PIPE)
     output = cpconfig.communicate()[0]
