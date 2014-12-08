@@ -313,7 +313,6 @@ class MainWindow(QtGui.QMainWindow):
         license_view = ViewCert()
         model = QtGui.QStringListModel()
         license_list = QtCore.QStringList()
-        license_list.append(QtCore.QString(self.cert))
         for line in license_info.split("\n"):
             for param in line.split(", "):
                 license_list.append(QtCore.QString(param))
