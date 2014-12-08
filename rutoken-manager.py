@@ -286,7 +286,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.menuBar.addAction(aboutAction)
         self.ui.cert_install.setEnabled(False)
         self.ui.cert_view.setEnabled(False)
-        # self.refresh_token()
+        self.refresh_token()
         self.ui.token_refresh.clicked.connect(self.refresh_token)
         self.ui.token_list.clicked.connect(self.select_token)
         self.ui.cert_view.clicked.connect(self.view_cert)
@@ -378,7 +378,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>rutoken-manager 0.1a</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
+                                u"<b>rutoken-manager 0.2</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
                                 u" краю<br>E-mail: <a href='mailto:infotdel@r24.fssprus.ru'>infotdel@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")

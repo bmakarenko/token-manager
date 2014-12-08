@@ -1,5 +1,5 @@
 Name: rutoken-manager
-Version: 0.1
+Version: 0.2
 Release: 1
 License: MIT
 Packager: Boris Makarenko
@@ -8,8 +8,8 @@ Summary: Certificate manager for CryptoPro SCP
 Source0: rutoken-manager.py
 Source1: rutoken-manager.png
 Source2: rutoken-manager.desktop
-Requires: PyQt4, rtSupCP-64, cprocsp-rdr-pcsc-64, lsb-cprocsp-capilite-64
-BuildArch:  x86_64
+Requires: PyQt4
+BuildArch:  noarch
 
 %description
 A PyQt front-end for Crypto Pro CSP for CentOS 6 and GosLinux by The Federal Bailiffs' Service of Russia
@@ -25,5 +25,8 @@ A PyQt front-end for Crypto Pro CSP for CentOS 6 and GosLinux by The Federal Bai
 %{_datadir}/applications/rutoken-manager.desktop
 
 %changelog
+* Mon Dec 08 2014 Boris Makarenko <bmakarenko90@gmail.com>
+- Version 0.2 release
+
 * Thu Dec 04 2014 Boris Makarenko <bmakarenko90@gmail.com>
 - Initial build
