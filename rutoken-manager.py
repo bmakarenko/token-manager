@@ -114,7 +114,7 @@ def inst_cert(cert):
 
 
 def set_license(cpro_license):
-    cpconfig = subprocess.Popen(['/opt/cprocsp/sbin/%s/cpconfig' % arch, '-license', '-set', cpro_license],
+    cpconfig = subprocess.Popen(['/usr/bin/cpconfig-%s' % arch, '-license', '-set', cpro_license],
                                stdout=subprocess.PIPE)
     output = cpconfig.communicate()[0]
     if cpconfig.returncode:
@@ -136,6 +136,7 @@ def install_root_cert(file):
 def install_crl(file):
     subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-crl', '-store', 'root', '-file', file],
                      stdout=subprocess.PIPE)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
