@@ -1,0 +1,2 @@
+USER=root
+PROGRAM=/opt/cprocsp/sbin/ia32/cpconfig
