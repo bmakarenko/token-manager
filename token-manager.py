@@ -305,7 +305,7 @@ class MainWindow(QtGui.QMainWindow):
     def open_crl(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.crl")
         for filename in file_names:
-            print install_crl(unicode(filename))
+            install_crl(unicode(filename))
 
     def open_root_certs(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.cer")
@@ -330,7 +330,12 @@ class MainWindow(QtGui.QMainWindow):
         if ok:
             m = re.match('([A-Z0-9]{5}-){4}[A-Z0-9]{5}', cpro_license)
             if m:
-                set_license(cpro_license)
+                l = set_license(cpro_license)
+                if l[1]:
+                    QtGui.QMessageBox.warning(self, u"Ошибка", u"Произошла ошибка: %s" % l[0])
+                else:
+                    QtGui.QMessageBox.information(self, u"Cообщение", u"Лицензионный ключ успешно установлен")
+
             else:
                 QtGui.QMessageBox.warning(self, u"Ошибка", u"Лицензионный ключ введен неверно!")
 
