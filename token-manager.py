@@ -151,7 +151,7 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(344, 0))
         MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("/usr/share/pixmaps/rutoken-manager.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("/usr/share/pixmaps/token-manager.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setAutoFillBackground(False)
@@ -228,7 +228,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "rutoken-manager", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "token-manager", None))
         self.label.setText(_translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
         self.token_refresh.setText(_translate("MainWindow", "Обновить", None))
         self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
@@ -379,7 +379,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>rutoken-manager 0.2</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
+                                u"<b>token-manager 0.2</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
                                 u" краю<br>E-mail: <a href='mailto:infotdel@r24.fssprus.ru'>infotdel@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")

@@ -1,19 +1,19 @@
-Name: rutoken-manager
+Name: token-manager
 Version: 0.2
-Release: 2
+Release: 3
 License: MIT
 Packager: Boris Makarenko
 Group: System Environment/Base
 Summary: Certificate manager for CryptoPro SCP
-Source0: rutoken-manager.py
-Source1: rutoken-manager.png
-Source2: rutoken-manager.desktop
+Source0: token-manager.py
+Source1: token-manager.png
+Source2: token-manager.desktop
 Source3: cpconfig-pam
 Source4: cpconfig-amd64
 Source5: cpconfig-ia32
 
 Requires: PyQt4
-BuildArch:  noarch
+BuildArch: noarch
 
 %description
 A PyQt front-end for Crypto Pro CSP for CentOS 6 and GosLinux by The Federal Bailiffs' Service of Russia
@@ -23,11 +23,11 @@ A PyQt front-end for Crypto Pro CSP for CentOS 6 and GosLinux by The Federal Bai
 mkdir -p %{buildroot}{_bindir}
 ln -sf /usr/bin/consolehelper %{buildroot}%{_bindir}/cpconfig-amd64
 ln -sf /usr/bin/consolehelper %{buildroot}%{_bindir}/cpconfig-ia32
-%{__install} -m 0644 %{SOURCE0} %{buildroot}%{_bindir}/rutoken-manager.py
+%{__install} -m 0644 %{SOURCE0} %{buildroot}%{_bindir}/token-manager.py
 mkdir -p %{buildroot}{_datadir}/pixmaps
 mkdir -p %{buildroot}{_datadir}/applications
-%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_datadir}/pixmaps/rutoken-manager.png
-%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_datadir}/applications/rutoken-manager.desktop
+%{__install} -m 0644 %{SOURCE1} %{buildroot}%{_datadir}/pixmaps/token-manager.png
+%{__install} -m 0644 %{SOURCE2} %{buildroot}%{_datadir}/applications/token-manager.desktop
 mkdir -p %{buildroot}%{_sysconfdir}/pam.d
 mkdir -p %{buildroot}%{_sysconfdir}/security/console.apps
 %{__install} -m 0644 %{SOURCE3} %{buildroot}%{_sysconfdir}/pam.d/cpconfig-amd64
@@ -39,9 +39,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/security/console.apps
 %files
 %{_bindir}/cpconfig-amd64
 %{_bindir}/cpconfig-ia32
-%{_bindir}/rutoken-manager.py
-%{_datadir}/pixmaps/rutoken-manager.png
-%{_datadir}/applications/rutoken-manager.desktop
+%{_bindir}/token-manager.py
+%{_datadir}/pixmaps/token-manager.png
+%{_datadir}/applications/token-manager.desktop
 %{_sysconfdir}/pam.d/cpconfig-amd64
 %{_sysconfdir}/pam.d/cpconfig-ia32
 %{_sysconfdir}/security/console.apps/cpconfig-amd64

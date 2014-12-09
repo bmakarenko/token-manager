@@ -2,14 +2,13 @@
 
 [Desktop Entry]
 Encoding=UTF-8
-Name=Rutoken Manager
+Name=Token Manager
 Name[ru]=Ключевые носители и сертификаты
 Comment[ru]=Установить сертификаты с ключевых носителей
-Comment=Install Rutoken certificates
-Exec=python /usr/bin/rutoken-manager.py
+Exec=python /usr/bin/token-manager.py
 Terminal=false
 Type=Application
-Icon=rutoken-manager
+Icon=token-manager
 StartupNotify=true
 X-Desktop-File-Install-Version=0.15
 Categories=Qt;HardwareSettings;Settings;System;
