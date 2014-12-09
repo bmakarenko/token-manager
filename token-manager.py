@@ -45,6 +45,7 @@ from PyQt4 import QtGui
 import subprocess
 import platform
 import re
+import getpass
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -106,7 +107,8 @@ def list_cert(cert):
 
 
 def inst_cert(cert):
-    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-cont', cert], stdout=subprocess.PIPE)
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', getpass.getuser(), '-cont',
+                                cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     if certmgr.returncode:
         return output.split("\n")[-1]
