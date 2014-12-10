@@ -13,4 +13,4 @@ Token-manager was designed for the GosLinux(not gOS) distribution by The Federal
 
 Building RPM package
 ===============
-Make sure you have installed rpmbuild utility. Then you can run <b>rpmbuild.sh</b> shell-script to build RPM package. The package you can found at <your home directory>/rpmbuild/RPMS/noarch
+Make sure you have installed rpmbuild utility. Then you can run <b>rpmbuild.sh</b> shell-script to build RPM package. The package you can find at <your home directory>/rpmbuild/RPMS/noarch
