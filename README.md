@@ -11,4 +11,6 @@ If you have installed all of those packages, you are able to run <b>python token
 
 Token-manager was designed for the GosLinux(not gOS) distribution by The Federal Bailiffs' Service of Russia and uses only necessary features of CryptoPro CSP. You are welcome to expand capabilites of the application by sending a pull request or forking this repository. It was also tested on Linux Mint 17. In theory it can work on any EL6 or Ubuntu-based distribution.
 
-There is also SPEC-file for building a rpm-package in this repository.
+Building RPM package
+===============
+Make sure you have installed rpmbuild utility. Then you can run <b>rpmbuild.sh</b> shell-script to build RPM package. The package you can found at <your home directory>/rpmbuild/RPMS/noarch
