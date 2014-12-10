@@ -45,7 +45,6 @@ from PyQt4 import QtGui
 import subprocess
 import platform
 import re
-import getpass
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -107,7 +106,7 @@ def list_cert(cert):
 
 
 def inst_cert(cert):
-    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', getpass.getuser(), '-cont',
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', 'uMy', '-cont',
                                 cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     if certmgr.returncode:
@@ -122,7 +121,6 @@ def set_license(cpro_license):
     if cpconfig.returncode:
         return output.split("\n")[-1], 1
     return None, 0
-
 
 
 def get_license():
