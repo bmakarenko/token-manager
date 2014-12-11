@@ -1,4 +1,5 @@
 #!/bin/bash
+mkdir -p ~/rpmbuild/{SPEC, SOURCES}
 cp token-manager.spec ~/rpmbuild/SPEC/
 cp token-manager.py ~/rpmbuild/SOURCES/
 cp token-manager.desktop ~/rpmbuild/SOURCES/
