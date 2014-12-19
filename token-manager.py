@@ -116,7 +116,7 @@ def inst_cert(cert):
 
 def set_license(cpro_license):
     cpconfig = subprocess.Popen(['/usr/bin/cpconfig-%s' % arch, '-license', '-set', cpro_license],
-                               stdout=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
     output = cpconfig.communicate()[0]
     if cpconfig.returncode:
         return output.split("\n")[-1], 1
@@ -130,13 +130,31 @@ def get_license():
 
 
 def install_root_cert(file):
-    subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', 'root', '-file', file],
-                     stdout=subprocess.PIPE)
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', 'root', '-file', file],
+                               stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    return output.decode('utf-8')
+
+
+def list_root_certs():
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-store', 'root'],
+                               stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    return output.decode('utf-8')
 
 
 def install_crl(file):
-    subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-crl', '-store', 'root', '-file', file],
-                     stdout=subprocess.PIPE)
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-crl', '-store', 'root', '-file', file],
+                               stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    return output.decode('utf-8')
+
+
+def list_crls():
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-crl', '-store', 'root'],
+                               stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    return output.decode('utf-8')
 
 
 class Ui_MainWindow(object):
@@ -151,7 +169,8 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(344, 0))
         MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("/usr/share/pixmaps/token-manager.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("/usr/share/pixmaps/token-manager.png")), QtGui.QIcon.Normal,
+                       QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setAutoFillBackground(False)
@@ -202,7 +221,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QtGui.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 344, 24))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 344, 21))
         self.menuBar.setDefaultUp(False)
         self.menuBar.setObjectName(_fromUtf8("menuBar"))
         self.operations = QtGui.QMenu(self.menuBar)
@@ -218,10 +237,18 @@ class Ui_MainWindow(object):
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
         self.view_license = QtGui.QAction(MainWindow)
         self.view_license.setObjectName(_fromUtf8("view_license"))
+        self.view_root = QtGui.QAction(MainWindow)
+        self.view_root.setObjectName(_fromUtf8("view_root"))
+        self.view_crl = QtGui.QAction(MainWindow)
+        self.view_crl.setObjectName(_fromUtf8("view_crl"))
         self.operations.addAction(self.add_license)
         self.operations.addAction(self.view_license)
+        self.operations.addSeparator()
         self.operations.addAction(self.install_root_certs)
         self.operations.addAction(self.install_crl)
+        self.operations.addSeparator()
+        self.operations.addAction(self.view_root)
+        self.operations.addAction(self.view_crl)
         self.menuBar.addAction(self.operations.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -229,9 +256,11 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "token-manager", None))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
+        self.label.setText(
+            _translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
         self.token_refresh.setText(_translate("MainWindow", "Обновить", None))
-        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
+        self.label_2.setText(
+            _translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
         self.cert_view.setText(_translate("MainWindow", "Просмотр", None))
         self.cert_install.setText(_translate("MainWindow", "Установить", None))
         self.operations.setTitle(_translate("MainWindow", "Операции", None))
@@ -240,6 +269,8 @@ class Ui_MainWindow(object):
         self.install_crl.setText(_translate("MainWindow", "Установка списков отозванных сертификатов", None))
         self.actionAbout.setText(_translate("MainWindow", "about", None))
         self.view_license.setText(_translate("MainWindow", "Просмотр лицензии КриптоПро CSP", None))
+        self.view_root.setText(_translate("MainWindow", "Просмотр корневых сертификатов", None))
+        self.view_crl.setText(_translate("MainWindow", "Просмотр списков отозванных сертификатов", None))
 
 
 class Ui_cert_view(object):
@@ -298,17 +329,61 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.view_license.triggered.connect(self.view_license)
         self.ui.install_root_certs.triggered.connect(self.open_root_certs)
         self.ui.install_crl.triggered.connect(self.open_crl)
+        self.ui.view_root.triggered.connect(self.view_root)
+        self.ui.view_crl.triggered.connect(self.view_crl)
         self.show()
+
+    def view_root(self):
+        root_info = list_root_certs()
+        root_view = ViewCert()
+        model = QtGui.QStringListModel()
+        root_list = QtCore.QStringList()
+        for line in root_info.split("\n"):
+            for param in line.split(", "):
+                root_list.append(QtCore.QString(param))
+        model.setStringList(root_list)
+        root_view.ui.cert_listview.setModel(model)
+        root_view.exec_()
+
+    def view_crl(self):
+        crl_info = list_crls()
+        crl_view = ViewCert()
+        model = QtGui.QStringListModel()
+        crl_list = QtCore.QStringList()
+        for line in crl_info.split("\n"):
+            for param in line.split(", "):
+                crl_list.append(QtCore.QString(param))
+        model.setStringList(crl_list)
+        crl_view.ui.cert_listview.setModel(model)
+        crl_view.exec_()
 
     def open_crl(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.crl")
         for filename in file_names:
-            install_crl(unicode(filename))
+            crl_info = install_crl(unicode(filename))
+            crl_view = ViewCert()
+            model = QtGui.QStringListModel()
+            crl_list = QtCore.QStringList()
+            for line in crl_info.split("\n"):
+                for param in line.split(", "):
+                    crl_list.append(QtCore.QString(param))
+            model.setStringList(crl_list)
+            crl_view.ui.cert_listview.setModel(model)
+            crl_view.exec_()
 
     def open_root_certs(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.cer")
         for filename in file_names:
-            install_root_cert(unicode(filename))
+            root_info = install_root_cert(unicode(filename))
+            root_view = ViewCert()
+            model = QtGui.QStringListModel()
+            root_list = QtCore.QStringList()
+            for line in root_info.split("\n"):
+                for param in line.split(", "):
+                    root_list.append(QtCore.QString(param))
+            model.setStringList(root_list)
+            root_view.ui.cert_listview.setModel(model)
+            root_view.exec_()
 
     def view_license(self):
         license_info = get_license()
@@ -384,7 +459,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.2</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
+                                u"<b>token-manager 0.3</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
                                 u" краю<br>E-mail: <a href='mailto:infotdel@r24.fssprus.ru'>infotdel@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")

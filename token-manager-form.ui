@@ -27,11 +27,11 @@
    <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>rutoken-manager</string>
+   <string>token-manager</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>/usr/share/pixmaps/rutoken-manager.png</normaloff>/usr/share/pixmaps/rutoken-manager.png</iconset>
+    <normaloff>/usr/share/pixmaps/token-manager.png</normaloff>/usr/share/pixmaps/token-manager.png</iconset>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -147,7 +147,7 @@
      <x>0</x>
      <y>0</y>
      <width>344</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -159,8 +159,12 @@
     </property>
     <addaction name="add_license"/>
     <addaction name="view_license"/>
+    <addaction name="separator"/>
     <addaction name="install_root_certs"/>
     <addaction name="install_crl"/>
+    <addaction name="separator"/>
+    <addaction name="view_root"/>
+    <addaction name="view_crl"/>
    </widget>
    <addaction name="operations"/>
   </widget>
@@ -187,6 +191,16 @@
   <action name="view_license">
    <property name="text">
     <string>Просмотр лицензии КриптоПро CSP</string>
+   </property>
+  </action>
+  <action name="view_root">
+   <property name="text">
+    <string>Просмотр корневых сертификатов</string>
+   </property>
+  </action>
+  <action name="view_crl">
+   <property name="text">
+    <string>Просмотр списков отозванных сертификатов</string>
    </property>
   </action>
  </widget>

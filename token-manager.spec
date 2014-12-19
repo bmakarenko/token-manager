@@ -1,6 +1,6 @@
 Name: token-manager
-Version: 0.2
-Release: 3
+Version: 0.3
+Release: 0
 License: MIT
 Packager: Boris Makarenko
 Group: System Environment/Base
@@ -49,6 +49,10 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Fri Dec 19 2014 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.3
+- View installed root certificates and CRLs
+
 * Mon Dec 08 2014 Boris Makarenko <bmakarenko90@gmail.com>
 - Release 0.2
 - Added features: Set license, View license, Install root certificate, Install CRL
