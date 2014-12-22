@@ -460,7 +460,7 @@ class MainWindow(QtGui.QMainWindow):
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
                                 u"<b>token-manager 0.3</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
-                                u" краю<br>E-mail: <a href='mailto:infotdel@r24.fssprus.ru'>infotdel@r24.fssprus.ru</a>"
+                                u" краю<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")
 
