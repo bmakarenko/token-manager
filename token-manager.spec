@@ -1,5 +1,5 @@
 Name: token-manager
-Version: 0.3
+Version: 0.4
 Release: 0
 License: MIT
 Packager: Boris Makarenko
@@ -12,7 +12,7 @@ Source3: cpconfig-pam
 Source4: cpconfig-amd64
 Source5: cpconfig-ia32
 
-Requires: PyQt4, usermode
+Requires: PyQt4, usermode, opensc
 BuildArch: noarch
 
 %description
@@ -49,6 +49,10 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Tue Dec 23 2014 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.4
+- Added change PIN feature
+
 * Fri Dec 19 2014 Boris Makarenko <bmakarenko90@gmail.com>
 - Release 0.3
 - View installed root certificates and CRLs

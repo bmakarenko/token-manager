@@ -31,7 +31,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>/usr/share/pixmaps/token-manager.png</normaloff>/usr/share/pixmaps/token-manager.png</iconset>
+    <normaloff>../../../../usr/share/pixmaps/token-manager.png</normaloff>../../../../usr/share/pixmaps/token-manager.png</iconset>
   </property>
   <property name="layoutDirection">
    <enum>Qt::LeftToRight</enum>
@@ -86,6 +86,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="changePIN">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Сменить PIN-код</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="token_refresh">
         <property name="text">
          <string>Обновить</string>
@@ -125,6 +135,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="cert_view">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Просмотр</string>
         </property>
@@ -132,6 +145,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="cert_install">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Установить</string>
         </property>

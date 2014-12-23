@@ -157,6 +157,38 @@ def list_crls():
     return output.decode('utf-8')
 
 
+def change_user_pin(old_pin, new_pin):
+    pkcs15tool = subprocess.Popen(['pkcs15-tool', '--auth-id', '02', '--change-pin', '--pin', old_pin, '--new-pin', new_pin], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = pkcs15tool.communicate()[0]
+    tries = output.split('\n')[1].split(': ')[-1]
+    if tries:
+        return False, tries
+    else:
+        return True, None
+
+def init_token():
+    createpkcs15 = subprocess.Popen(['/usr/bin/pkcs15-init', '--create-pkcs15', '--pin', '12345678', '--so-pin', '87654321', '--so-puk', ''], stdout=subprocess.PIPE)
+    storepin = subprocess.Popen(['/usr/bin/pkcs15-init', '--store-pin', '--label', 'User PIN', '--auth-id', '02', '--pin', '12345678', '--puk', '', '--so-pin', '87654321'], stdout=subprocess.PIPE)
+    createpkcs15.communicate()
+    storepin.communicate()
+    if createpkcs15.returncode or storepin.returncode:
+        return False
+    else:
+        return True
+
+
+def check_user_pin():
+    pkcs15tool = subprocess.Popen(['/usr/bin/pkcs15-tool', '-D'], stdout=subprocess.PIPE)
+    output = pkcs15tool.communicate()[0]
+    search = 'User PIN'
+    s = re.search(search, output)
+    if s:
+        auth_id = output.split('[User PIN]')[1].split('\n\t')[2].split(':')[-1].strip()
+        return auth_id
+    else:
+        return None
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
@@ -169,8 +201,7 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(344, 0))
         MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("/usr/share/pixmaps/token-manager.png")), QtGui.QIcon.Normal,
-                       QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8("../../../../usr/share/pixmaps/token-manager.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setAutoFillBackground(False)
@@ -197,6 +228,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
+        self.changePIN = QtGui.QPushButton(self.centralwidget)
+        self.changePIN.setEnabled(False)
+        self.changePIN.setObjectName(_fromUtf8("changePIN"))
+        self.horizontalLayout_2.addWidget(self.changePIN)
         self.token_refresh = QtGui.QPushButton(self.centralwidget)
         self.token_refresh.setObjectName(_fromUtf8("token_refresh"))
         self.horizontalLayout_2.addWidget(self.token_refresh)
@@ -213,9 +248,11 @@ class Ui_MainWindow(object):
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
         self.cert_view = QtGui.QPushButton(self.centralwidget)
+        self.cert_view.setEnabled(False)
         self.cert_view.setObjectName(_fromUtf8("cert_view"))
         self.horizontalLayout.addWidget(self.cert_view)
         self.cert_install = QtGui.QPushButton(self.centralwidget)
+        self.cert_install.setEnabled(False)
         self.cert_install.setObjectName(_fromUtf8("cert_install"))
         self.horizontalLayout.addWidget(self.cert_install)
         self.verticalLayout_2.addLayout(self.horizontalLayout)
@@ -256,11 +293,10 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "token-manager", None))
-        self.label.setText(
-            _translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
+        self.label.setText(_translate("MainWindow", "<html><head/><body><p>Выберите ключевой носитель</p></body></html>", None))
+        self.changePIN.setText(_translate("MainWindow", "Сменить PIN-код", None))
         self.token_refresh.setText(_translate("MainWindow", "Обновить", None))
-        self.label_2.setText(
-            _translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
+        self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
         self.cert_view.setText(_translate("MainWindow", "Просмотр", None))
         self.cert_install.setText(_translate("MainWindow", "Установить", None))
         self.operations.setTitle(_translate("MainWindow", "Операции", None))
@@ -317,8 +353,6 @@ class MainWindow(QtGui.QMainWindow):
         aboutAction.setStatusTip('Exit application')
         aboutAction.triggered.connect(self.aboutProgram)
         self.ui.menuBar.addAction(aboutAction)
-        self.ui.cert_install.setEnabled(False)
-        self.ui.cert_view.setEnabled(False)
         self.refresh_token()
         self.ui.token_refresh.clicked.connect(self.refresh_token)
         self.ui.token_list.clicked.connect(self.select_token)
@@ -331,7 +365,38 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.install_crl.triggered.connect(self.open_crl)
         self.ui.view_root.triggered.connect(self.view_root)
         self.ui.view_crl.triggered.connect(self.view_crl)
+        self.ui.changePIN.clicked.connect(self.change_pin)
         self.show()
+
+    def change_pin(self):
+        auth_id = check_user_pin()
+        if auth_id:
+            old_pin, ok = QtGui.QInputDialog.getText(None, u"Ввод PIN-кода", u"Введите текущий PIN-код:",
+                                                     QtGui.QLineEdit.Password)
+            if ok:
+                new_pin, ok = QtGui.QInputDialog.getText(None, u"Ввод PIN-кода", u"Введите новый PIN-код:",
+                                                     QtGui.QLineEdit.Password)
+                if ok:
+                    conf_pin, ok = QtGui.QInputDialog.getText(None, u"Ввод PIN-кода", u"Повторите новый PIN-код:",
+                                                     QtGui.QLineEdit.Password)
+                    if ok and new_pin == conf_pin:
+                        if len(new_pin) < 8:
+                            QtGui.QMessageBox.warning(self, u'Ошибка', u"Недостаточная длина PIN-кода.\n Минимальная "
+                                                                       u"длина PIN составляет 8 символов")
+                            return
+                        ok, tries = change_user_pin(old_pin, new_pin)
+                        if ok:
+                            QtGui.QMessageBox.information(self, u"Cообщение", u"PIN-код успешно изменен")
+                        else:
+                            QtGui.QMessageBox.warning(self, u'Ошибка', u"PIN-код введен неверно\nОсталось попыток: %s" %
+                                                      tries)
+                    else:
+                        QtGui.QMessageBox.warning(self, u'Ошибка', u"Введенные PIN-коды не совпадают")
+        else:
+            if not init_token():
+                QtGui.QMessageBox.warning(self, u"Ошибка", u'Произошла ошибка при инициализации ключевого носителя')
+            else:
+                self.change_pin()
 
     def view_root(self):
         root_info = list_root_certs()
@@ -430,6 +495,7 @@ class MainWindow(QtGui.QMainWindow):
             cert_list.append(cert.split('\\')[-1])
         model.setStringList(cert_list)
         self.ui.cert_list.setModel(model)
+        self.ui.changePIN.setEnabled(True)
 
     def view_cert(self):
         cert_info = list_cert(self.cert)
@@ -459,7 +525,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.3</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
+                                u"<b>token-manager 0.4</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
                                 u" краю<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")
