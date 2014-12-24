@@ -497,6 +497,12 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMessageBox.information(self, u"Сообщение", ret)
 
     def delete_cert(self):
+        reply = QtGui.QMessageBox.question(self, u'Подтверждение', u'Вы уверенны что хотите удалить данный сертификат '
+                                                                   u'с ключевого носителя?\n'
+                                                                   u'Эту операцию нельзя отменить.',
+                                           QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.No:
+            return
         ret = del_cert(self.cert)
         QtGui.QMessageBox.information(self, u"Сообщение", ret)
         model = QtGui.QStringListModel()
