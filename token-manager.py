@@ -501,16 +501,20 @@ class MainWindow(QtGui.QMainWindow):
                                                                    u'с ключевого носителя?\n'
                                                                    u'Эту операцию нельзя отменить.',
                                            QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.No:
-            return
-        ret = del_cert(self.cert)
-        QtGui.QMessageBox.information(self, u"Сообщение", ret)
-        model = QtGui.QStringListModel()
-        cert_list = QtCore.QStringList()
-        certs = get_certs(self.token)[0]
-        for cert in certs:
-            cert_list.append(cert.split('\\')[-1])
-        model.setStringList(cert_list)
+        if reply == QtGui.QMessageBox.Yes:
+            ret = del_cert(self.cert)
+            QtGui.QMessageBox.information(self, u"Сообщение", ret)
+            model = QtGui.QStringListModel()
+            cert_list = QtCore.QStringList()
+            certs = get_certs(self.token)[0]
+            for cert in certs:
+                cert_list.append(cert.split('\\')[-1])
+            model.setStringList(cert_list)
+            self.ui.cert_list.setModel(model)
+            self.ui.cert_delete.setEnabled(False)
+            self.ui.cert_view.setEnabled(False)
+            self.ui.cert_install.setEnabled(False)
+
 
     def select_cert(self, index):
         self.ui.cert_install.setEnabled(True)
@@ -557,7 +561,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.4</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
+                                u"<b>token-manager 0.5</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
                                 u" краю<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")

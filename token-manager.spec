@@ -1,6 +1,6 @@
 Name: token-manager
 Version: 0.5
-Release: 0
+Release: 1
 License: MIT
 Packager: Boris Makarenko
 Group: System Environment/Base
