@@ -1,5 +1,5 @@
 Name: token-manager
-Version: 0.4
+Version: 0.5
 Release: 0
 License: MIT
 Packager: Boris Makarenko
@@ -49,6 +49,10 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Tue Dec 24 2014 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.5
+- Added delete container feature
+
 * Tue Dec 23 2014 Boris Makarenko <bmakarenko90@gmail.com>
 - Release 0.4
 - Added change PIN feature

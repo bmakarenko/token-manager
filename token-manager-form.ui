@@ -134,6 +134,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="cert_delete">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Удалить</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="cert_view">
         <property name="enabled">
          <bool>false</bool>

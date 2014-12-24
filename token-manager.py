@@ -114,6 +114,14 @@ def inst_cert(cert):
     return u"Сертификат успешно установлен"
 
 
+def del_cert(cert):
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-delete', '-cont', cert], stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    if certmgr.returncode:
+        return output.split("\n")[-1]
+    return u"Сертификат успешно удален"
+
+
 def set_license(cpro_license):
     cpconfig = subprocess.Popen(['/usr/bin/cpconfig-%s' % arch, '-license', '-set', cpro_license],
                                 stdout=subprocess.PIPE)
@@ -165,6 +173,7 @@ def change_user_pin(old_pin, new_pin):
         return False, tries
     else:
         return True, None
+
 
 def init_token():
     createpkcs15 = subprocess.Popen(['/usr/bin/pkcs15-init', '--create-pkcs15', '--pin', '12345678', '--so-pin', '87654321', '--so-puk', ''], stdout=subprocess.PIPE)
@@ -247,6 +256,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem1)
+        self.cert_delete = QtGui.QPushButton(self.centralwidget)
+        self.cert_delete.setEnabled(False)
+        self.cert_delete.setObjectName(_fromUtf8("cert_delete"))
+        self.horizontalLayout.addWidget(self.cert_delete)
         self.cert_view = QtGui.QPushButton(self.centralwidget)
         self.cert_view.setEnabled(False)
         self.cert_view.setObjectName(_fromUtf8("cert_view"))
@@ -297,6 +310,7 @@ class Ui_MainWindow(object):
         self.changePIN.setText(_translate("MainWindow", "Сменить PIN-код", None))
         self.token_refresh.setText(_translate("MainWindow", "Обновить", None))
         self.label_2.setText(_translate("MainWindow", "<html><head/><body><p>Выберите сертификат</p></body></html>", None))
+        self.cert_delete.setText(_translate("MainWindow", "Удалить", None))
         self.cert_view.setText(_translate("MainWindow", "Просмотр", None))
         self.cert_install.setText(_translate("MainWindow", "Установить", None))
         self.operations.setTitle(_translate("MainWindow", "Операции", None))
@@ -366,6 +380,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.view_root.triggered.connect(self.view_root)
         self.ui.view_crl.triggered.connect(self.view_crl)
         self.ui.changePIN.clicked.connect(self.change_pin)
+        self.ui.cert_delete.clicked.connect(self.delete_cert)
         self.show()
 
     def change_pin(self):
@@ -381,7 +396,7 @@ class MainWindow(QtGui.QMainWindow):
                                                      QtGui.QLineEdit.Password)
                     if ok and new_pin == conf_pin:
                         if len(new_pin) < 8:
-                            QtGui.QMessageBox.warning(self, u'Ошибка', u"Недостаточная длина PIN-кода.\n Минимальная "
+                            QtGui.QMessageBox.warning(self, u'Ошибка', u"Недостаточная длина PIN-кода.\nМинимальная "
                                                                        u"длина PIN составляет 8 символов")
                             return
                         ok, tries = change_user_pin(old_pin, new_pin)
@@ -481,9 +496,20 @@ class MainWindow(QtGui.QMainWindow):
         ret = inst_cert(self.cert)
         QtGui.QMessageBox.information(self, u"Сообщение", ret)
 
+    def delete_cert(self):
+        ret = del_cert(self.cert)
+        QtGui.QMessageBox.information(self, u"Сообщение", ret)
+        model = QtGui.QStringListModel()
+        cert_list = QtCore.QStringList()
+        certs = get_certs(self.token)[0]
+        for cert in certs:
+            cert_list.append(cert.split('\\')[-1])
+        model.setStringList(cert_list)
+
     def select_cert(self, index):
         self.ui.cert_install.setEnabled(True)
         self.ui.cert_view.setEnabled(True)
+        self.ui.cert_delete.setEnabled(True)
         self.cert = r"\\.\%s\%s" % (self.token, str(index.data().toString()))
 
     def select_token(self, index):
