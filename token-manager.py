@@ -115,10 +115,11 @@ def inst_cert(cert):
 
 
 def del_cert(cert):
-    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-delete', '-cont', cert], stdout=subprocess.PIPE)
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-delete', '-cont', cert], stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     output = certmgr.communicate()[0]
     if certmgr.returncode:
-        return output.split("\n")[-1]
+        return output
     return u"Сертификат успешно удален"
 
 
