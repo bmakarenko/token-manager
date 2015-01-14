@@ -4,7 +4,7 @@ Release: 1
 License: MIT
 Packager: Boris Makarenko
 Group: System Environment/Base
-Summary: Certificate manager for CryptoPro SCP
+Summary: Certificate manager for CryptoPro CSP
 Source0: token-manager.py
 Source1: token-manager.png
 Source2: token-manager.desktop
