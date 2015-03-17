@@ -167,7 +167,9 @@ def list_crls():
 
 
 def change_user_pin(old_pin, new_pin):
-    pkcs15tool = subprocess.Popen(['pkcs15-tool', '--auth-id', '02', '--change-pin', '--pin', old_pin, '--new-pin', new_pin], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    pkcs15tool = subprocess.Popen(
+        ['pkcs15-tool', '--auth-id', '02', '--change-pin', '--pin', old_pin, '--new-pin', new_pin],
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = pkcs15tool.communicate()[0]
     tries = output.split('\n')[1].split(': ')[-1]
     if tries:
@@ -177,8 +179,12 @@ def change_user_pin(old_pin, new_pin):
 
 
 def init_token():
-    createpkcs15 = subprocess.Popen(['/usr/bin/pkcs15-init', '--create-pkcs15', '--pin', '12345678', '--so-pin', '87654321', '--so-puk', ''], stdout=subprocess.PIPE)
-    storepin = subprocess.Popen(['/usr/bin/pkcs15-init', '--store-pin', '--label', 'User PIN', '--auth-id', '02', '--pin', '12345678', '--puk', '', '--so-pin', '87654321'], stdout=subprocess.PIPE)
+    createpkcs15 = subprocess.Popen(
+        ['/usr/bin/pkcs15-init', '--create-pkcs15', '--pin', '12345678', '--so-pin', '87654321', '--so-puk', ''],
+        stdout=subprocess.PIPE)
+    storepin = subprocess.Popen(
+        ['/usr/bin/pkcs15-init', '--store-pin', '--label', 'User PIN', '--auth-id', '02', '--pin', '12345678', '--puk',
+         '', '--so-pin', '87654321'], stdout=subprocess.PIPE)
     createpkcs15.communicate()
     storepin.communicate()
     if createpkcs15.returncode or storepin.returncode:
@@ -197,6 +203,13 @@ def check_user_pin():
         return auth_id
     else:
         return None
+
+
+def get_cspversion():
+    csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-verifycontext'],
+                               stdout=subprocess.PIPE)
+    output = csptest.communicate()[0].split('\n')[0]
+    return output.decode('utf-8')
 
 
 class Ui_MainWindow(object):
@@ -323,7 +336,6 @@ class Ui_MainWindow(object):
         self.view_root.setText(_translate("MainWindow", "Просмотр корневых сертификатов", None))
         self.view_crl.setText(_translate("MainWindow", "Просмотр списков отозванных сертификатов", None))
 
-
 class Ui_cert_view(object):
     def setupUi(self, cert_view):
         cert_view.setObjectName(_fromUtf8("cert_view"))
@@ -365,7 +377,6 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.setupUi(self)
         aboutAction = QtGui.QAction(u'&О программе', self)
         aboutAction.setShortcut('Ctrl+Q')
-        aboutAction.setStatusTip('Exit application')
         aboutAction.triggered.connect(self.aboutProgram)
         self.ui.menuBar.addAction(aboutAction)
         self.refresh_token()
@@ -391,10 +402,10 @@ class MainWindow(QtGui.QMainWindow):
                                                      QtGui.QLineEdit.Password)
             if ok:
                 new_pin, ok = QtGui.QInputDialog.getText(None, u"Ввод PIN-кода", u"Введите новый PIN-код:",
-                                                     QtGui.QLineEdit.Password)
+                                                         QtGui.QLineEdit.Password)
                 if ok:
                     conf_pin, ok = QtGui.QInputDialog.getText(None, u"Ввод PIN-кода", u"Повторите новый PIN-код:",
-                                                     QtGui.QLineEdit.Password)
+                                                              QtGui.QLineEdit.Password)
                     if ok and new_pin == conf_pin:
                         if len(new_pin) < 8:
                             QtGui.QMessageBox.warning(self, u'Ошибка', u"Недостаточная длина PIN-кода.\nМинимальная "
@@ -516,7 +527,6 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.cert_view.setEnabled(False)
             self.ui.cert_install.setEnabled(False)
 
-
     def select_cert(self, index):
         self.ui.cert_install.setEnabled(True)
         self.ui.cert_view.setEnabled(True)
@@ -562,10 +572,10 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.5</b><br><br>Борис Макаренко<br>УФССП России по Красноярскому"
+                                u"<b>token-manager 0.6a</b><br>%s<br><br>Борис Макаренко<br>УФССП России по Красноярскому"
                                 u" краю<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
-                                u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>")
+                                u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>" % get_cspversion())
 
 
 def main():
