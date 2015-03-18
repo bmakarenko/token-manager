@@ -194,6 +194,7 @@
    </widget>
    <addaction name="operations"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="add_license">
    <property name="text">
     <string>Ввод лицензии КриптоПро CSP</string>

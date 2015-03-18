@@ -179,12 +179,10 @@ def change_user_pin(old_pin, new_pin):
 
 
 def init_token():
-    createpkcs15 = subprocess.Popen(
-        ['/usr/bin/pkcs15-init', '--create-pkcs15', '--pin', '12345678', '--so-pin', '87654321', '--so-puk', ''],
-        stdout=subprocess.PIPE)
-    storepin = subprocess.Popen(
-        ['/usr/bin/pkcs15-init', '--store-pin', '--label', 'User PIN', '--auth-id', '02', '--pin', '12345678', '--puk',
-         '', '--so-pin', '87654321'], stdout=subprocess.PIPE)
+    createpkcs15 = subprocess.Popen(['/usr/bin/pkcs15-init', '--create-pkcs15', '--pin', '12345678', '--so-pin',
+                                     '87654321', '--so-puk', ''], stdout=subprocess.PIPE)
+    storepin = subprocess.Popen(['/usr/bin/pkcs15-init', '--store-pin', '--label', 'User PIN', '--auth-id', '02',
+                                 '--pin', '12345678', '--puk', '', '--so-pin', '87654321'], stdout=subprocess.PIPE)
     createpkcs15.communicate()
     storepin.communicate()
     if createpkcs15.returncode or storepin.returncode:
@@ -209,8 +207,12 @@ def get_cspversion():
     csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-verifycontext'],
                                stdout=subprocess.PIPE)
     output = csptest.communicate()[0].split('\n')[0]
-    return output.decode('utf-8')
+    r = re.search(r'v([0-9.]*[0-9]+)\ (.+)\ Release Ver\:([0-9.]*[0-9]+)\ OS\:([a-zA-z]+)', output)
+    return r.group(1), r.group(2), r.group(3), r.group(4)
 
+
+def versiontuple(v):
+    return tuple(map(int, (v.split("."))))
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -394,6 +396,11 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.changePIN.clicked.connect(self.change_pin)
         self.ui.cert_delete.clicked.connect(self.delete_cert)
         self.show()
+        if versiontuple(get_cspversion()[2]) <= versiontuple("3.6.7491"):
+            QtGui.QMessageBox.information(self, u"Сообщение", u"Необходимо обновить КриптоПро CSP."
+                                                              u"<br>Ваша текущая версия: %s"
+                                                              u"<br>Минимальная рекомендуемая: 3.6.7491" %
+                                          get_cspversion()[2])
 
     def change_pin(self):
         auth_id = check_user_pin()
@@ -572,8 +579,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.6a</b><br>%s<br><br>Борис Макаренко<br>УФССП России по Красноярскому"
-                                u" краю<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
+                                u"<b>token-manager 0.6</b><br>"
+                                u"Версия CSP: %s<br>"
+                                u"Класс криптосредств: %s<br>"
+                                u"Релиз: %s<br>"
+                                u"ОС: %s<br>"
+                                u"<br>Борис Макаренко<br>УФССП России по Красноярскому краю"
+                                u"<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>" % get_cspversion())
 
