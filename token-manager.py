@@ -395,7 +395,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.changePIN.clicked.connect(self.change_pin)
         self.ui.cert_delete.clicked.connect(self.delete_cert)
         self.show()
-        if versiontuple(get_cspversion()[2]) <= versiontuple("3.6.7491"):
+        if versiontuple(get_cspversion()[2]) < versiontuple("3.6.7491"):
             QtGui.QMessageBox.information(self, u"Сообщение", u"Необходимо обновить КриптоПро CSP."
                                                               u"<br>Ваша текущая версия: %s"
                                                               u"<br>Минимальная рекомендуемая: 3.6.7491" %
