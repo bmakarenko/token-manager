@@ -85,8 +85,8 @@ def get_token():
 
 
 def get_certs(token):
-    csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-enum_cont', '-fqcn', '-verifyc'],
-                               stdout=subprocess.PIPE)
+    csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-enum_cont', '-unique', '-fqcn',
+                                '-verifyc'], stdout=subprocess.PIPE)
     output = csptest.communicate()[0]
     certs = []
     if csptest.returncode:
@@ -214,6 +214,14 @@ def get_cspversion():
 def versiontuple(v):
     return tuple(map(int, (v.split("."))))
 
+
+def add_ini(pin, cont_id):
+    cpconfig = subprocess.Popen(['/opt/cprocsp/sbin/%s/cpconfig' % arch, '-ini',
+                                 '\\LOCAL\\KeyDevices\\passwords\\%s\%s\%s' % tuple(cont_id[:-1]), '-add', 'string',
+                                 'passwd', pin], stdout=subprocess.PIPE)
+    return cpconfig.returncode
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
@@ -223,7 +231,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QtCore.QSize(344, 0))
+        MainWindow.setMinimumSize(QtCore.QSize(360, 0))
         MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8("/usr/share/pixmaps/token-manager.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -376,6 +384,7 @@ class ViewCert(QtGui.QDialog):
 class MainWindow(QtGui.QMainWindow):
     token = ""
     cert = ""
+    cont_id = ""
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -399,12 +408,21 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.view_crl.triggered.connect(self.view_crl)
         self.ui.changePIN.clicked.connect(self.change_pin)
         self.ui.cert_delete.clicked.connect(self.delete_cert)
+        self.ui.cachePIN.clicked.connect(self.cache_pin)
         self.show()
         if versiontuple(get_cspversion()[2]) < versiontuple("3.6.7491"):
             QtGui.QMessageBox.information(self, u"Сообщение", u"Необходимо обновить КриптоПро CSP."
                                                               u"<br>Ваша текущая версия: %s"
                                                               u"<br>Минимальная рекомендуемая: 3.6.7491" %
                                           get_cspversion()[2])
+
+    def cache_pin(self):
+        pin, ok = QtGui.QInputDialog.getText(None, u"Ввод PIN-кода", u"Введите PIN-код:",
+                                                     QtGui.QLineEdit.Password)
+        if ok:
+            if not add_ini(pin, self.cont_id):
+                QtGui.QMessageBox.information(self, u"Cообщение", u"PIN-код успешно сохранен")
+
 
     def change_pin(self):
         auth_id = check_user_pin()
@@ -425,6 +443,7 @@ class MainWindow(QtGui.QMainWindow):
                         ok, tries = change_user_pin(old_pin, new_pin)
                         if ok:
                             QtGui.QMessageBox.information(self, u"Cообщение", u"PIN-код успешно изменен")
+                            add_ini(new_pin, self.cont_id)
                         else:
                             QtGui.QMessageBox.warning(self, u'Ошибка', u"PIN-код введен неверно\nОсталось попыток: %s" %
                                                       tries)
@@ -542,7 +561,13 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.cert_install.setEnabled(True)
         self.ui.cert_view.setEnabled(True)
         self.ui.cert_delete.setEnabled(True)
-        self.cert = r"\\.\%s\%s" % (self.token, str(index.data().toString()))
+        self.ui.cachePIN.setEnabled(True)
+        containers = get_certs(self.token)
+        cert_name = str(index.data().toString())
+        for line in containers[0]:
+            if cert_name in line:
+                self.cert = r"\\.\%s\%s" % (self.token, cert_name)
+                self.cont_id = line.split('|')[1].split('\\')[4:]  # содержит список, который нужно объединить бэкслэшами
 
     def select_token(self, index):
         self.token = str(index.data().toString())
@@ -550,7 +575,7 @@ class MainWindow(QtGui.QMainWindow):
         cert_list = QtCore.QStringList()
         certs = get_certs(str(index.data().toString()))[0]
         for cert in certs:
-            cert_list.append(cert.split('\\')[-1])
+            cert_list.append(cert.split('|')[0].split('\\')[-1])
         model.setStringList(cert_list)
         self.ui.cert_list.setModel(model)
         self.ui.changePIN.setEnabled(True)
@@ -583,7 +608,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.6</b><br>"
+                                u"<b>token-manager 0.7</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"
