@@ -562,6 +562,7 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.cert_view.setEnabled(True)
         self.ui.cert_delete.setEnabled(True)
         self.ui.cachePIN.setEnabled(True)
+        self.ui.changePIN.setEnabled(True)
         containers = get_certs(self.token)
         cert_name = str(index.data().toString())
         for line in containers[0]:
@@ -578,7 +579,6 @@ class MainWindow(QtGui.QMainWindow):
             cert_list.append(cert.split('|')[0].split('\\')[-1])
         model.setStringList(cert_list)
         self.ui.cert_list.setModel(model)
-        self.ui.changePIN.setEnabled(True)
 
     def view_cert(self):
         cert_info = list_cert(self.cert)
