@@ -50,6 +50,10 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 %changelog
 * Tue Dec 24 2014 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.7
+- Added cache PIN feature
+
+* Tue Dec 24 2014 Boris Makarenko <bmakarenko90@gmail.com>
 - Release 0.6
 - Display CSP version
 - Obsolete CSP version warning
