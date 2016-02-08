@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/images">
+    <file alias='usb-token.png'>usb-token.png</file>
+    <file alias='personal.png'>personal.png</file>
+    <file alias='root.png'>root.png</file>
+  </qresource>
+</RCC>

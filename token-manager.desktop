@@ -1,0 +1,14 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Encoding=UTF-8
+Name=Token Manager
+Name[ru]=Ключевые носители и сертификаты
+Comment[ru]=Установить сертификаты с ключевых носителей
+Exec=python /usr/bin/token-manager.py
+Terminal=false
+Type=Application
+Icon=token-manager
+StartupNotify=true
+X-Desktop-File-Install-Version=0.15
+Categories=Qt;HardwareSettings;Settings;System;
