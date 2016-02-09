@@ -1,5 +1,5 @@
 Name: token-manager
-Version: 0.9a
+Version: 0.9
 Release: 1
 License: MIT
 Packager: Boris Makarenko

@@ -219,12 +219,12 @@ else:
     exit()
 
 
-def get_token():
+def get_tokens():
     list_pcsc = subprocess.Popen(['/opt/cprocsp/bin/%s/list_pcsc' % arch], stdout=subprocess.PIPE)
     output = list_pcsc.communicate()[0]
     if list_pcsc.returncode:
         return u'<ключевых носителей не обнаружено>', 1
-    return output.replace("available reader: ", "").replace("\n", ""), 0
+    return output.replace("available reader: ", "").split("\n")[:-1], 0
 
 
 def get_token_certs(token):
@@ -243,12 +243,10 @@ def get_token_certs(token):
 def get_store_certs(store):
     certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-store', store], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
-    m = re.findall(
-        r'(\d+)-{7}\nIssuer.*?CN=(.+?)[\n,].*?Subject.*?CN=(.+?)[\n,].*?Serial.*?(0x.+?)\nSHA1 Hash.*?(0x.+?)\nNot valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC',
-        output, re.MULTILINE + re.DOTALL)
+    m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x.+?)\nSHA1 Hash.*?(0x.+?)\nNot valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC', output, re.MULTILINE + re.DOTALL)
     return m
 
-    # TODO переделать распарсивание - запилить словарь с именами и значениями полей
+
 def list_cert(cert):
     certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-cont', cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
@@ -404,6 +402,28 @@ def set_as_reader(token):
         return True
     else:
         return False
+
+
+def translate_cert_fields(fieldname):
+    fields = {'1.2.840.113549.1.9.2': u'неструктурированное имя',
+              '1.2.643.5.1.5.2.1.2': u'код должности',
+              '1.2.643.5.1.5.2.1.1': u'код структурного подразделения ФССП России (ВКСП)',
+              'CN': u'общее имя',
+              'SN': u'фамилия',
+              'G': u'имя и отчество',
+              'I': u'инициалы',
+              'T': u'должность',
+              'OU': u'структурное подразделение',
+              'O': u'организация',
+              'L': u'населенный пункт',
+              'S': u'субъект Российской Федерации',
+              'C': u'страна',
+              'E': u'адрес электронной почты',
+              'INN': u'ИНН',
+              'OGRN': u'ОГРН',
+              'SNILS': u'СНИЛС',
+              'STREET': u'название улицы, номер дома'}
+    return fields[fieldname]
 
 
 class Ui_MainWindow(object):
@@ -840,7 +860,6 @@ class MainWindow(QtGui.QMainWindow):
                 cert_item = QtGui.QListWidgetItem()
                 cert_item.setText(cert.split('|')[0].split('\\')[-1])
                 self.ui.cert_list.addItem(cert_item)
-        # TODO Красиво распарсить выхлоп хранилищ
         if not item.isToken:
             self.ui.cert_install.setHidden(item.storage == 'uMy')
             self.ui.cert_install.setEnabled(item.storage == 'root')
@@ -857,7 +876,9 @@ class MainWindow(QtGui.QMainWindow):
                 cert_item.cert_index = cert[0]
                 if datetime.strptime(cert[6], '%d/%m/%Y  %H:%M:%S ') < datetime.utcnow():
                     cert_item.setBackgroundColor(QtGui.QColor(252, 133, 133))
-                cert_item.setText(cert[2].decode('utf-8'))
+                cert_subject_cn = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\w \.\,0-9@\-\#\/]+"?)(?:, |$)', cert[2].decode('utf-8'), re.UNICODE))['CN']
+                cert_issuer_cn = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\w \.\,0-9@\-\#\/]+"?)(?:, |$)', cert[1].decode('utf-8'), re.UNICODE))['CN']
+                cert_item.setText(u"%s\nвыдан %s" % (cert_subject_cn, cert_issuer_cn))
                 self.ui.cert_list.addItem(cert_item)
 
     def view_cert(self):
@@ -882,22 +903,48 @@ class MainWindow(QtGui.QMainWindow):
         cert_info = get_store_certs(store)
         cert_view = ViewCert()
         line = cert_info[int(self.ui.cert_list.currentItem().cert_index) - 1]
-        item = QtGui.QListWidgetItem()
+        item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
+        label = QtGui.QLabel()
+        label.setText(u'<b>Эмитент</b>:')
+        cert_view.ui.cert_listview.setItemWidget(item, label)
+        issuer_info = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\w \.\,0-9@\-\#\/]+"?)(?:, |$)', line[1].decode('utf-8'), re.UNICODE))
+        for field in issuer_info:
+            item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
+            label = QtGui.QLabel()
+            label.setText(u'<b>%s</b>:\t\t%s' % (translate_cert_fields(field), issuer_info[field]))
+            cert_view.ui.cert_listview.setItemWidget(item, label)
+        item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
+        item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
+        label = QtGui.QLabel()
+        label.setText(u'\n<b>Субъект</b>:')
+        cert_view.ui.cert_listview.setItemWidget(item, label)
+        subject_info = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\w \.\,0-9@\-\#\/]+"?)(?:, |$)', line[2].decode('utf-8'), re.UNICODE))
+        for field in subject_info:
+            item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
+            label = QtGui.QLabel()
+            if subject_info[field][:2] == '"#':  # Если поле в HEX-виде
+                label.setText(u'<b>%s</b>:\t%s' % (translate_cert_fields(field), subject_info[field][6:-1].decode('hex').decode('utf-8')))
+            else:
+                label.setText(u'<b>%s</b>:\t%s' % (translate_cert_fields(field), subject_info[field]))
+            cert_view.ui.cert_listview.setItemWidget(item, label)
+        item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
         not_valid_before = datetime.strptime(line[5], '%d/%m/%Y  %H:%M:%S ')
+        label = QtGui.QLabel()
+        label.setText(u'<b>Не действителен до</b>: %s' % datetime.strftime(not_valid_before, '%d.%m.%Y %H:%M:%S'))
+        cert_view.ui.cert_listview.setItemWidget(item, label)
+
+        item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
         not_valid_after = datetime.strptime(line[6], '%d/%m/%Y  %H:%M:%S ')
         if not_valid_after < datetime.utcnow():
             item.setBackgroundColor(QtGui.QColor(252, 133, 133))
-        item.setText(('Эмитент: %s\nСубъект: %s\nСерийный номер: %s\nХэш SHA1: %s\nНе действителен до: %s\n'
-                      'Не действителен после: %s' % (line[1], line[2], line[3], line[4],
-                                                     datetime.strftime(not_valid_before, '%d.%m.%Y %H:%M:%S'),
-                                                     datetime.strftime(not_valid_after, '%d.%m.%Y %H:%M:%S'))).decode(
-            'utf-8'))
-        cert_view.ui.cert_listview.addItem(item)
+        label = QtGui.QLabel()
+        label.setText(u'<b>Не действителен после</b>: %s' % datetime.strftime(not_valid_after, '%d.%m.%Y %H:%M:%S'))
+        cert_view.ui.cert_listview.setItemWidget(item, label)
         cert_view.exec_()
 
     def refresh_token(self):
         self.ui.token_list.clear()
-        token = get_token()
+        tokens = get_tokens()
         root_store_item = TokenListItem()
         root_store_item.setText(u"Хранилище корневых сертификатов")
         root_store_item.isToken = False
@@ -910,21 +957,22 @@ class MainWindow(QtGui.QMainWindow):
         personal_store_item.storage = 'uMy'
         personal_store_item.setIcon(QtGui.QIcon(':/images/personal.png'))
         self.ui.token_list.addItem(personal_store_item)
-        # TODO Все надо переделать, чтобы показывался не только один токен
-        token_item = TokenListItem()
-        if token[1]:
+        if tokens[1]:
+            token_item = TokenListItem()
             self.ui.cert_list.clearSelection()
             token_item.setText(u'<Ключевых носителей не обнаружено>')
             token_item.setSelected(False)
             token_item.setFlags(QtCore.Qt.NoItemFlags)
         else:
-            token_item.setText(token[0])
-            token_item.setIcon(QtGui.QIcon(':/images/usb-token.png'))
-        self.ui.token_list.addItem(token_item)
+            for token in tokens[0]:
+                token_item = TokenListItem()
+                token_item.setText(token)
+                token_item.setIcon(QtGui.QIcon(':/images/usb-token.png'))
+                self.ui.token_list.addItem(token_item)
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.9a</b><br>"
+                                u"<b>token-manager 0.9</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"
