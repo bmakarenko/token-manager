@@ -1,6 +1,6 @@
 Name: token-manager
 Version: 0.9
-Release: 1
+Release: 2
 License: MIT
 Packager: Boris Makarenko
 Group: System Environment/Base
@@ -49,6 +49,11 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Tue Feb 09 2016 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.9
+- Personal and root certificate storages
+- Displaying complete and translated into Russian info about certificates
+
 * Wed Feb 03 2016 Boris Makarenko <bmakarenko90@gmail.com>
 - Release 0.8
 - Hardware reader setup
