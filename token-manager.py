@@ -227,6 +227,12 @@ def get_tokens():
     return output.replace("available reader: ", "").split("\n")[:-1], 0
 
 
+def get_token_serial(token):
+    opensc_tool = subprocess.Popen(['/usr/bin/opensc-tool', '--serial', '-r', token], stdout=subprocess.PIPE)
+    output = opensc_tool.communicate()[0]
+    return '%010d' % int(output[:11].replace(' ', ''), 16)
+
+
 def get_token_certs(token):
     csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-enum_cont', '-unique', '-fqcn',
                                 '-verifyc'], stdout=subprocess.PIPE)
@@ -627,6 +633,7 @@ class ViewCert(QtGui.QDialog):
 class TokenListItem(QtGui.QListWidgetItem):
     isToken = True
     storage = ''
+    token_name = ''
 
     def __init__(self, parent=None):
         super(TokenListItem, self).__init__(parent)
@@ -877,8 +884,8 @@ class MainWindow(QtGui.QMainWindow):
             self.ui.cert_install.clicked.connect(self.install_cert)
             self.ui.label_2.setText(u'Выберите контейнер сертификата')
             self.ui.asReader.setEnabled(True)
-            self.token = str(item.text().toUtf8())
-            certs = get_token_certs(str(item.text().toUtf8()))[0]
+            self.token = str(item.token_name)
+            certs = get_token_certs(str(item.token_name))[0]
             for cert in certs:
                 cert_item = QtGui.QListWidgetItem()
                 cert_item.setText(cert.split('|')[0].split('\\')[-1])
@@ -990,13 +997,14 @@ class MainWindow(QtGui.QMainWindow):
         else:
             for token in tokens[0]:
                 token_item = TokenListItem()
-                token_item.setText(token)
+                token_item.token_name = token
+                token_item.setText(u'%s - сер. № %s' % (token, get_token_serial(token)))
                 token_item.setIcon(QtGui.QIcon(':/images/usb-token.png'))
                 self.ui.token_list.addItem(token_item)
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.9-2</b><br>"
+                                u"<b>token-manager 0.10</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"

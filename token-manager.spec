@@ -1,5 +1,5 @@
 Name: token-manager
-Version: 0.9
+Version: 0.10
 Release: 2
 License: MIT
 Packager: Boris Makarenko
@@ -49,6 +49,10 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Wed May 04 2016 Boris Makarenko <bmakarenko90@gmail.com>
+- Release 0.10
+- Displaying the token's serial number
+
 * Tue Feb 09 2016 Boris Makarenko <bmakarenko90@gmail.com>
 - Release 0.9
 - Personal and root certificate storages
