@@ -49,44 +49,44 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
-* Wed May 04 2016 Boris Makarenko <bmakarenko90@gmail.com>
+* Wed May 04 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.10
 - Release 0.10
 - Displaying the token's serial number
 
-* Tue Feb 09 2016 Boris Makarenko <bmakarenko90@gmail.com>
+* Tue Feb 09 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.9
 - Release 0.9
 - Personal and root certificate storages
 - Displaying complete and translated into Russian info about certificates
 
-* Wed Feb 03 2016 Boris Makarenko <bmakarenko90@gmail.com>
+* Wed Feb 03 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.8
 - Release 0.8
 - Hardware reader setup
 - Remastered viewer windows
 
-* Thu Aug 06 2015 Boris Makarenko <bmakarenko90@gmail.com>
+* Thu Aug 06 2015 Boris Makarenko <bmakarenko90@gmail.com> - 0.7
 - Release 0.7
 - Added cache PIN feature
 
-* Wed Mar 18 2015 Boris Makarenko <bmakarenko90@gmail.com>
+* Wed Mar 18 2015 Boris Makarenko <bmakarenko90@gmail.com> - 0.6
 - Release 0.6
 - Display CSP version
 - Obsolete CSP version warning
 
-* Wed Dec 24 2014 Boris Makarenko <bmakarenko90@gmail.com>
+* Wed Dec 24 2014 Boris Makarenko <bmakarenko90@gmail.com> - 0.5
 - Release 0.5
 - Added delete container feature
 
-* Tue Dec 23 2014 Boris Makarenko <bmakarenko90@gmail.com>
+* Tue Dec 23 2014 Boris Makarenko <bmakarenko90@gmail.com> - 0.4
 - Release 0.4
 - Added change PIN feature
 
-* Fri Dec 19 2014 Boris Makarenko <bmakarenko90@gmail.com>
+* Fri Dec 19 2014 Boris Makarenko <bmakarenko90@gmail.com> - 0.3
 - Release 0.3
 - View installed root certificates and CRLs
 
-* Mon Dec 08 2014 Boris Makarenko <bmakarenko90@gmail.com>
+* Mon Dec 08 2014 Boris Makarenko <bmakarenko90@gmail.com> - 0.2
 - Release 0.2
 - Added features: Set license, View license, Install root certificate, Install CRL
 
-* Thu Dec 04 2014 Boris Makarenko <bmakarenko90@gmail.com>
+* Thu Dec 04 2014 Boris Makarenko <bmakarenko90@gmail.com> - 0.1
 - Initial build
