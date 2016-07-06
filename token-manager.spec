@@ -1,6 +1,6 @@
 Name: token-manager
 Version: 0.10
-Release: 0
+Release: 1
 License: MIT
 Packager: Boris Makarenko
 Group: System Environment/Base
@@ -49,6 +49,10 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 
 
 %changelog
+* Wed Jul 06 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.10
+- Release 0.10-1
+- Filter list of root certificates and CRLs
+
 * Wed May 04 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.10
 - Release 0.10
 - Displaying the token's serial number

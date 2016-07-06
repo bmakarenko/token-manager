@@ -623,12 +623,79 @@ class Ui_cert_view(object):
         self.close_cert_view.setText(_translate("cert_view", "Закрыть", None))
 
 
+class Ui_cert_list(object):
+    def setupUi(self, cert_list):
+        cert_list.setObjectName(_fromUtf8("cert_list"))
+        cert_list.resize(404, 343)
+        self.gridLayout = QtGui.QGridLayout(cert_list)
+        self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
+        spacerItem = QtGui.QSpacerItem(323, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 2, 0, 1, 1)
+        self.close_cert_list = QtGui.QPushButton(cert_list)
+        self.close_cert_list.setObjectName(_fromUtf8("close_cert_list"))
+        self.gridLayout.addWidget(self.close_cert_list, 2, 1, 1, 1)
+        self.cert_listview = QtGui.QListWidget(cert_list)
+        self.cert_listview.setObjectName(_fromUtf8("cert_listview"))
+        self.gridLayout.addWidget(self.cert_listview, 1, 0, 1, 2)
+        self.cert_list_filter = QtGui.QLineEdit(cert_list)
+        self.cert_list_filter.setObjectName(_fromUtf8("cert_list_filter"))
+        self.gridLayout.addWidget(self.cert_list_filter, 0, 0, 1, 2)
+
+        self.retranslateUi(cert_list)
+        QtCore.QObject.connect(self.close_cert_list, QtCore.SIGNAL(_fromUtf8("clicked()")), cert_list.close)
+        QtCore.QMetaObject.connectSlotsByName(cert_list)
+
+    def retranslateUi(self, cert_list):
+        cert_list.setWindowTitle(_translate("cert_list", "Список", None))
+        self.close_cert_list.setText(_translate("cert_list", "Закрыть", None))
+
+
 class ViewCert(QtGui.QDialog):
     def __init__(self):
         super(ViewCert, self).__init__()
         self.ui = Ui_cert_view()
         self.ui.setupUi(self)
 
+
+class ListCert(QtGui.QDialog):
+
+    list_data = []
+    is_root = False
+
+    def __init__(self, certlist_data, is_root):
+        super(ListCert, self).__init__()
+        self.ui = Ui_cert_list()
+        self.ui.setupUi(self)
+        self.ui.cert_list_filter.textChanged.connect(self.filterout)
+        self.list_data = certlist_data
+        self.is_root = is_root
+        self.filterout()
+
+    def filterout(self):
+        self.ui.cert_listview.clear()
+        filter_text = unicode(self.ui.cert_list_filter.text())
+        for line in self.list_data:
+            if filter_text.upper() in line[1].decode('utf-8').upper():
+                item = QtGui.QListWidgetItem()
+                if self.is_root:
+                    not_valid_before = datetime.strptime(line[5], '%d/%m/%Y  %H:%M:%S ')
+                    not_valid_after = datetime.strptime(line[6], '%d/%m/%Y  %H:%M:%S ')
+                    if not_valid_after < datetime.utcnow():
+                        item.setBackgroundColor(QtGui.QColor(252, 133, 133))
+                    item.setText(('Эмитент: %s\nСубъект: %s\nСерийный номер: %s\nХэш SHA1: %s\nНе действителен до: %s\n'
+                          'Не действителен после: %s' % (line[1], line[2], line[3], line[4],
+                                                         datetime.strftime(not_valid_before, '%d.%m.%Y %H:%M:%S'),
+                                                         datetime.strftime(not_valid_after,
+                                                                           '%d.%m.%Y %H:%M:%S'))).decode('utf-8'))
+                else:
+                    this_update = datetime.strptime(line[2], '%d/%m/%Y  %H:%M:%S ')
+                    next_update = datetime.strptime(line[3], '%d/%m/%Y  %H:%M:%S ')
+                    if next_update < datetime.utcnow():
+                        item.setBackgroundColor(QtGui.QColor(252, 133, 133))
+                    item.setText(('%s\nДата выпуска: %s UTC\nДата обновления: %s UTC' %
+                          (line[1], datetime.strftime(this_update, '%d.%m.%Y %H:%M:%S'),
+                           datetime.strftime(next_update, '%d.%m.%Y %H:%M:%S'))).decode('utf-8'))
+                self.ui.cert_listview.addItem(item)
 
 class TokenListItem(QtGui.QListWidgetItem):
     isToken = True
@@ -729,35 +796,12 @@ class MainWindow(QtGui.QMainWindow):
 
     def view_root(self):
         root_info = list_root_certs()
-        root_view = ViewCert()
-        for line in root_info:
-            item = QtGui.QListWidgetItem()
-            not_valid_before = datetime.strptime(line[5], '%d/%m/%Y  %H:%M:%S ')
-            not_valid_after = datetime.strptime(line[6], '%d/%m/%Y  %H:%M:%S ')
-            if not_valid_after < datetime.utcnow():
-                item.setBackgroundColor(QtGui.QColor(252, 133, 133))
-            item.setText(('Эмитент: %s\nСубъект: %s\nСерийный номер: %s\nХэш SHA1: %s\nНе действителен до: %s\n'
-                          'Не действителен после: %s' % (line[1], line[2], line[3], line[4],
-                                                         datetime.strftime(not_valid_before, '%d.%m.%Y %H:%M:%S'),
-                                                         datetime.strftime(not_valid_after,
-                                                                           '%d.%m.%Y %H:%M:%S'))).decode('utf-8'))
-            root_view.ui.cert_listview.addItem(item)
+        root_view = ListCert(root_info, True)
         root_view.exec_()
 
     def view_crl(self):
         crl_info = list_crls()
-        crl_view = ViewCert()
-        for line in crl_info:
-            item = QtGui.QListWidgetItem()
-            this_update = datetime.strptime(line[2], '%d/%m/%Y  %H:%M:%S ')
-            next_update = datetime.strptime(line[3], '%d/%m/%Y  %H:%M:%S ')
-
-            if next_update < datetime.utcnow():
-                item.setBackgroundColor(QtGui.QColor(252, 133, 133))
-            item.setText(('%s\nДата выпуска: %s UTC\nДата обновления: %s UTC' %
-                          (line[1], datetime.strftime(this_update, '%d.%m.%Y %H:%M:%S'),
-                           datetime.strftime(next_update, '%d.%m.%Y %H:%M:%S'))).decode('utf-8'))
-            crl_view.ui.cert_listview.addItem(item)
+        crl_view = ListCert(crl_info, False)
         crl_view.exec_()
 
     def open_crl(self):
@@ -1004,7 +1048,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.10</b><br>"
+                                u"<b>token-manager 0.10-1</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"
