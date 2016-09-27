@@ -432,9 +432,14 @@ def translate_cert_fields(fieldname):
               '1.2.643.2.2.34.5': u'Оператор Центра Регистрации КриптоПро УЦ',
               '1.2.643.2.2.34.6': u'Пользователь центра регистрации КриптоПро УЦ',
               '1.2.643.2.2.34.7': u'Центр Регистрации КриптоПро УЦ',
+              '1.3.6.1.5.5.7.3.1': u'Проверка подлинности сервера',
               '1.3.6.1.5.5.7.3.2': u'Проверка подлинности клиента',
               '1.3.6.1.5.5.7.3.4': u'Защищенная электронная почта',
               '1.3.6.1.5.5.7.3.8': u'Установка штампа времени',
+              '1.2.643.3.61.502710.1.6.3.4.1.1': u'Администратор организации',
+              '1.2.643.3.61.502710.1.6.3.4.1.2': u'Уполномоченный специалист',
+              '1.2.643.3.61.502710.1.6.3.4.1.3': u'Должностное лицо с правом подписи контракта',
+              '1.2.643.3.61.502710.1.6.3.4.1.4': u'Специалист с правом направления проекта контракта участнику размещения заказа',
               'CN': u'общее имя',
               'SN': u'фамилия',
               'G': u'имя и отчество',
@@ -913,8 +918,9 @@ class MainWindow(QtGui.QMainWindow):
             containers = get_token_certs(self.token)
             cert_name = str(item.text().toUtf8())
             for line in containers[0]:
-                if cert_name in line:
-                    self.cert = r"\\.\%s\%s" % (self.token, cert_name)
+                container = line.decode('cp1251').encode('utf-8')
+                if cert_name in container:
+                    self.cert = line.split('|')[1]
                     self.cont_id = line.split('|')[1].split('\\')[4:] # содержит список, который нужно объединить бэкслэшами
         else:
             self.ui.cert_view.clicked.connect(self.view_cert)
@@ -932,7 +938,7 @@ class MainWindow(QtGui.QMainWindow):
             certs = get_token_certs(str(item.token_name))[0]
             for cert in certs:
                 cert_item = QtGui.QListWidgetItem()
-                cert_item.setText(cert.split('|')[0].split('\\')[-1])
+                cert_item.setText(cert.split('|')[0].split('\\')[-1].decode('cp1251'))
                 self.ui.cert_list.addItem(cert_item)
         if not item.isToken:
             self.ui.cert_install.setHidden(item.storage == 'uMy')
@@ -1048,7 +1054,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.10-1</b><br>"
+                                u"<b>token-manager 0.10-2</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"
