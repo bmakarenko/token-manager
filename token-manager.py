@@ -230,7 +230,8 @@ def get_tokens():
 def get_token_serial(token):
     opensc_tool = subprocess.Popen(['/usr/bin/opensc-tool', '--serial', '-r', token], stdout=subprocess.PIPE)
     output = opensc_tool.communicate()[0]
-    return '%010d' % int(output[:11].replace(' ', ''), 16)
+    if not opensc_tool.returncode:
+        return '%010d' % int(output[:11].replace(' ', ''), 16)
 
 
 def get_token_certs(token):
@@ -269,6 +270,15 @@ def list_cert(cert):
 def inst_cert(cert):
     certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', 'uMy', '-cont',
                                 cert], stdout=subprocess.PIPE)
+    output = certmgr.communicate()[0]
+    if certmgr.returncode:
+        return output.split("\n")[-1]
+    return u"Сертификат успешно установлен"
+
+
+def inst_cert_from_file(filepath):
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-inst', '-store', 'uMy', '-file',
+                                filepath], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     if certmgr.returncode:
         return output.split("\n")[-1]
@@ -828,7 +838,7 @@ class MainWindow(QtGui.QMainWindow):
         crl_view.exec_()
 
     def open_root_certs(self):
-        file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.cer")
+        file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.cer *.crt")
         if not file_names:
             return
         root_view = ViewCert()
@@ -873,6 +883,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def install_cert(self):
         ret = inst_cert(self.cert)
+        QtGui.QMessageBox.information(self, u"Сообщение", ret)
+
+    def install_local_cert(self):
+        file_name = QtGui.QFileDialog().getOpenFileName(self, u"Выберите файл(ы)", "", "*.cer")
+        if not file_name:
+            return
+        ret = inst_cert_from_file(unicode(file_name))
         QtGui.QMessageBox.information(self, u"Сообщение", ret)
 
     def delete_cert(self):
@@ -941,11 +958,13 @@ class MainWindow(QtGui.QMainWindow):
                 cert_item.setText(cert.split('|')[0].split('\\')[-1].decode('cp1251'))
                 self.ui.cert_list.addItem(cert_item)
         if not item.isToken:
-            self.ui.cert_install.setHidden(item.storage == 'uMy')
-            self.ui.cert_install.setEnabled(item.storage == 'root')
+            self.ui.cert_install.setEnabled(True)
             if item.storage == 'root':
                 self.ui.cert_install.clicked.disconnect()
                 self.ui.cert_install.clicked.connect(self.open_root_certs)
+            elif item.storage == 'uMy':
+                self.ui.cert_install.clicked.disconnect()
+                self.ui.cert_install.clicked.connect(self.install_local_cert)
             self.ui.label_2.setText(u'Выберите сертификат')
             self.ui.asReader.setEnabled(False)
             self.ui.changePIN.setEnabled(False)
