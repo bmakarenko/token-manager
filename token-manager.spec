@@ -1,5 +1,5 @@
 Name: token-manager
-Version: 0.10
+Version: 0.11
 Release: 1
 License: MIT
 Packager: Boris Makarenko
@@ -35,6 +35,8 @@ mkdir -p %{buildroot}/%{_sysconfdir}/security/console.apps
 %{__install} -m 0644 %{SOURCE4} %{buildroot}%{_sysconfdir}/security/console.apps/cpconfig-amd64
 %{__install} -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/security/console.apps/cpconfig-ia32
 
+%post
+xdg-desktop-menu install --mode system %{_datadir}/applications/token-manager.desktop
 
 %files
 %{_bindir}/cpconfig-amd64

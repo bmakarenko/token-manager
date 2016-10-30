@@ -10,5 +10,6 @@ Terminal=false
 Type=Application
 Icon=token-manager
 StartupNotify=true
+MimeType=application/x-x509-ca-cert;
 X-Desktop-File-Install-Version=0.15
 Categories=Qt;HardwareSettings;Settings;System;

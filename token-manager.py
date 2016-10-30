@@ -39,7 +39,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-
+import os
 import sys
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -757,7 +757,6 @@ class MainWindow(QtGui.QMainWindow):
         self.ui.cert_delete.clicked.connect(self.delete_cert)
         self.ui.cachePIN.clicked.connect(self.cache_pin)
         self.ui.asReader.clicked.connect(self.set_reader)
-        self.show()
         if versiontuple(get_cspversion()[2]) < versiontuple("3.6.7491"):
             QtGui.QMessageBox.information(self, u"Сообщение", u"Необходимо обновить КриптоПро CSP."
                                                               u"<br>Ваша текущая версия: %s"
@@ -1087,8 +1086,13 @@ class MainWindow(QtGui.QMainWindow):
 def main():
     app = QtGui.QApplication(sys.argv)
     ex = MainWindow()
-    sys.exit(app.exec_())
-
+    if len(sys.argv) == 1:
+        ex.show()
+        sys.exit(app.exec_())
+    else:
+        if os.path.isfile(sys.argv[1].decode('utf-8')):
+            ret = inst_cert_from_file(sys.argv[1].decode('utf-8'))
+            QtGui.QMessageBox().information(QtGui.QMessageBox(), u"Сообщение", ret)
 
 if __name__ == '__main__':
     main()
