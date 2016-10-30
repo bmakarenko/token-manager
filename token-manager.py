@@ -1072,7 +1072,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.10-2</b><br>"
+                                u"<b>token-manager 0.11</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"

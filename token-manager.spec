@@ -51,6 +51,10 @@ xdg-desktop-menu install --mode system %{_datadir}/applications/token-manager.de
 
 
 %changelog
+* Sun Oct 30 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.11
+- Release 0.11
+- Installing certificates to uMy store from file
+
 * Wed Jul 06 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.10
 - Release 0.10-1
 - Filter list of root certificates and CRLs
