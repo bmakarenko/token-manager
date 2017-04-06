@@ -222,7 +222,7 @@ else:
 def get_tokens():
     list_pcsc = subprocess.Popen(['/opt/cprocsp/bin/%s/list_pcsc' % arch], stdout=subprocess.PIPE)
     output = list_pcsc.communicate()[0]
-    if list_pcsc.returncode:
+    if 'ERROR' in output:
         return u'<ключевых носителей не обнаружено>', 1
     m = re.findall(r'(?:available reader: |^)(.+)', output, re.MULTILINE)
     return m, 0
