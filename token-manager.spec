@@ -1,5 +1,5 @@
 Name: token-manager
-Version: 0.11
+Version: 0.12
 Release: 1
 License: MIT
 Packager: Boris Makarenko
@@ -51,6 +51,10 @@ xdg-desktop-menu install --mode system %{_datadir}/applications/token-manager.de
 
 
 %changelog
+* Fri Apr 07 2017 Boris Makarenko <bmakarenko90@gmail.com> - 0.12
+- Release 0.12
+- Compatibility with CryptoPro CSP 4.0
+
 * Sun Oct 30 2016 Boris Makarenko <bmakarenko90@gmail.com> - 0.11
 - Release 0.11
 - Installing certificates to uMy store from file

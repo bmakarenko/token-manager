@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Copyright (c) 2016 Борис Макаренко
+Copyright (c) 2017 Борис Макаренко
 
 Данная лицензия разрешает лицам, получившим копию данного программного обеспечения и сопутствующей документации
 (в дальнейшем именуемыми «Программное Обеспечение»), безвозмездно использовать Программное Обеспечение без ограничений,
@@ -19,7 +19,7 @@ Copyright (c) 2016 Борис Макаренко
 ИЛИ ПО ИНЫМ ТРЕБОВАНИЯМ, В ТОМ ЧИСЛЕ, ПРИ ДЕЙСТВИИ КОНТРАКТА, ДЕЛИКТЕ ИЛИ ИНОЙ СИТУАЦИИ, ВОЗНИКШИМ ИЗ-ЗА ИСПОЛЬЗОВАНИЯ
 ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ ИЛИ ИНЫХ ДЕЙСТВИЙ С ПРОГРАММНЫМ ОБЕСПЕЧЕНИЕМ..
 
-Copyright (c) 2016 Boris Makarenko
+Copyright (c) 2017 Boris Makarenko
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -822,6 +822,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def open_crl(self):
         file_names = QtGui.QFileDialog.getOpenFileNames(self, u"Выберите файл(ы)", "", "*.crl")
+        if not file_names:
+            return
         crl_view = ViewCert()
         for filename in file_names:
             crl_info = install_crl(unicode(filename))
@@ -1074,13 +1076,13 @@ class MainWindow(QtGui.QMainWindow):
 
     def aboutProgram(self):
         QtGui.QMessageBox.about(self, u"О программе",
-                                u"<b>token-manager 0.11</b><br>"
+                                u"<b>token-manager 0.12</b><br>"
                                 u"Версия CSP: %s<br>"
                                 u"Класс криптосредств: %s<br>"
                                 u"Релиз: %s<br>"
                                 u"ОС: %s<br>"
-                                u"<br>Борис Макаренко<br>УФССП России по Красноярскому краю"
-                                u"<br>E-mail: <a href='mailto:makarenko@r24.fssprus.ru'>makarenko@r24.fssprus.ru</a>"
+                                u"<br>Борис Макаренко<br>УИТ ФССП России"
+                                u"<br>E-mail: <a href='mailto:makarenko@fssprus.ru'>makarenko@r24.fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>" % get_cspversion())
 
