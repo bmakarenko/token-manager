@@ -218,6 +218,18 @@ elif platform.machine() == 'i686':
 else:
     exit()
 
+def get_cspversion():
+    csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-verifycontext'],
+                               stdout=subprocess.PIPE)
+    output = csptest.communicate()[0].split('\n')[0]
+    r = re.search(r'v([0-9.]*[0-9]+)\ (.+)\ Release Ver\:([0-9.]*[0-9]+)\ OS\:([a-zA-z]+)', output)
+    return r.group(1), r.group(2), r.group(3), r.group(4)
+
+csprelease = get_cspversion()[2]
+
+def versiontuple(v):
+    return tuple(map(int, (v.split("."))))
+
 
 def get_tokens():
     list_pcsc = subprocess.Popen(['/opt/cprocsp/bin/%s/list_pcsc' % arch], stdout=subprocess.PIPE)
@@ -254,14 +266,14 @@ def get_store_certs(store):
         output = certmgr.communicate()[0]
         m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x\w+?)\nSHA1 Hash.*?(0x\w+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC', output, re.MULTILINE + re.DOTALL)
     else:
-        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-verbose', '-store', store], stdout=subprocess.PIPE)
+        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(csprelease) >= versiontuple("4.0.9708") else '-verbose' , '-store', store], stdout=subprocess.PIPE)
         output = certmgr.communicate()[0]
         m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x\w+?)\nSHA1 Hash.*?(0x\w+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC.+?Extended Key Usage.*?([\d\.\s]+)\n', output, re.MULTILINE + re.DOTALL)
     return m
 
 
 def list_cert(cert):
-    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-verbose', '-cont', cert], stdout=subprocess.PIPE)
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(csprelease) >= versiontuple("4.0.9708") else '-verbose', '-cont', cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x.+?)\nSHA1 Hash.*?(0x.+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC.+?Extended Key Usage.*?([\d\.\s]+)\n',
         output, re.MULTILINE + re.DOTALL)
@@ -394,18 +406,6 @@ def check_user_pin():
         return auth_id
     else:
         return None
-
-
-def get_cspversion():
-    csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-verifycontext'],
-                               stdout=subprocess.PIPE)
-    output = csptest.communicate()[0].split('\n')[0]
-    r = re.search(r'v([0-9.]*[0-9]+)\ (.+)\ Release Ver\:([0-9.]*[0-9]+)\ OS\:([a-zA-z]+)', output)
-    return r.group(1), r.group(2), r.group(3), r.group(4)
-
-
-def versiontuple(v):
-    return tuple(map(int, (v.split("."))))
 
 
 def add_ini(pin, cont_id):
