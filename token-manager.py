@@ -216,7 +216,8 @@ if platform.machine() == 'x86_64':
 elif platform.machine() == 'i686':
     arch = 'ia32'
 else:
-    exit()
+    exit(-1)
+
 
 def get_cspversion():
     csptest = subprocess.Popen(['/opt/cprocsp/bin/%s/csptest' % arch, '-keyset', '-verifycontext'],
@@ -225,7 +226,6 @@ def get_cspversion():
     r = re.search(r'v([0-9.]*[0-9]+)\ (.+)\ Release Ver\:([0-9.]*[0-9]+)\ OS\:([a-zA-z]+)', output)
     return r.group(1), r.group(2), r.group(3), r.group(4)
 
-csprelease = get_cspversion()[2]
 
 def versiontuple(v):
     return tuple(map(int, (v.split("."))))
@@ -266,14 +266,14 @@ def get_store_certs(store):
         output = certmgr.communicate()[0]
         m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x\w+?)\nSHA1 Hash.*?(0x\w+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC', output, re.MULTILINE + re.DOTALL)
     else:
-        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(csprelease) >= versiontuple("4.0.9708") else '-verbose' , '-store', store], stdout=subprocess.PIPE)
+        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(get_cspversion()[2]) >= versiontuple("4.0.9708") else '-verbose' , '-store', store], stdout=subprocess.PIPE)
         output = certmgr.communicate()[0]
         m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x\w+?)\nSHA1 Hash.*?(0x\w+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC.+?Extended Key Usage.*?([\d\.\s]+)\n', output, re.MULTILINE + re.DOTALL)
     return m
 
 
 def list_cert(cert):
-    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(csprelease) >= versiontuple("4.0.9708") else '-verbose', '-cont', cert], stdout=subprocess.PIPE)
+    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(get_cspversion()[2]) >= versiontuple("4.0.9708") else '-verbose', '-cont', cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x.+?)\nSHA1 Hash.*?(0x.+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC.+?Extended Key Usage.*?([\d\.\s]+)\n',
         output, re.MULTILINE + re.DOTALL)
@@ -743,6 +743,8 @@ class MainWindow(QtGui.QMainWindow):
         aboutAction.setShortcut('Ctrl+Q')
         aboutAction.triggered.connect(self.aboutProgram)
         self.ui.menuBar.addAction(aboutAction)
+        if not os.path.exists('/opt/cprocsp/bin/%s/certmgr' % arch) or not os.path.exists('/opt/cprocsp/bin/%s/cryptcp' % arch):
+            raise Exception(u'СКЗИ Крипто Про CSP или некоторые его компоненты не установлены.')
         self.refresh_token()
         self.ui.token_refresh.clicked.connect(self.refresh_token)
         self.ui.token_list.itemClicked.connect(self.select_token)
@@ -1082,14 +1084,19 @@ class MainWindow(QtGui.QMainWindow):
                                 u"Релиз: %s<br>"
                                 u"ОС: %s<br>"
                                 u"<br>Борис Макаренко<br>УИТ ФССП России"
-                                u"<br>E-mail: <a href='mailto:makarenko@fssprus.ru'>makarenko@r24.fssprus.ru</a>"
+                                u"<br>E-mail: <a href='mailto:makarenko@fssprus.ru'>makarenko@fssprus.ru</a>"
                                 u"<br> <a href='mailto:bmakarenko90@gmail.com'>bmakarenko90@gmail.com<br><br>"
                                 u"<a href='http://opensource.org/licenses/MIT'>Лицензия MIT</a>" % get_cspversion())
 
 
 def main():
     app = QtGui.QApplication(sys.argv)
-    ex = MainWindow()
+    try:
+        ex = MainWindow()
+    except Exception as error:
+        QtGui.QMessageBox().warning(QtGui.QMessageBox(), u"Cообщение", u"Произошла ошибка:\n%s" % error)
+        exit(-1)
+
     if len(sys.argv) == 1:
         ex.show()
         sys.exit(app.exec_())
