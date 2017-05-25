@@ -243,8 +243,12 @@ def get_tokens():
 def get_token_serial(token):
     opensc_tool = subprocess.Popen(['/usr/bin/opensc-tool', '--serial', '-r', token], stdout=subprocess.PIPE)
     output = opensc_tool.communicate()[0]
+    try:
+        serial = '%010d' % int(output[:11].replace(' ', ''), 16)
+    except:
+        return 'б/н'
     if not opensc_tool.returncode:
-        return '%010d' % int(output[:11].replace(' ', ''), 16)
+        return serial
 
 
 def get_token_certs(token):
