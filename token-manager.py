@@ -984,8 +984,8 @@ class MainWindow(QtGui.QMainWindow):
                 cert_item.cert_index = cert[0]
                 if datetime.strptime(cert[6], '%d/%m/%Y  %H:%M:%S ') < datetime.utcnow():
                     cert_item.setBackgroundColor(QtGui.QColor(252, 133, 133))
-                cert_subject_cn = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\w \.\,0-9@\-\#\/\"]+"?)(?:, |$)', cert[2].decode('utf-8'), re.UNICODE))['CN']
-                cert_issuer_cn = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\w \.\,0-9@\-\#\/\"]+"?)(?:, |$)', cert[1].decode('utf-8'), re.UNICODE))['CN']
+                cert_subject_cn = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\xab\xbb\(\)\w \.\,0-9@\-\#\/\"]+"?)(?:, |$)', cert[2].decode('utf-8'), re.UNICODE))['CN']
+                cert_issuer_cn = dict(re.findall(ur'([A-Z0-9\.]+?)=("?[\xab\xbb\(\)\w \.\,0-9@\-\#\/\"]+"?)(?:, |$)', cert[1].decode('utf-8'), re.UNICODE))['CN']
                 cert_item.setText(u"%s\nвыдан %s" % (cert_subject_cn, cert_issuer_cn))
                 self.ui.cert_list.addItem(cert_item)
 
