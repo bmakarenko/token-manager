@@ -246,7 +246,7 @@ def get_token_serial(token):
     try:
         serial = '%010d' % int(output[:11].replace(' ', ''), 16)
     except:
-        return 'б/н'
+        return u'б/н'
     if not opensc_tool.returncode:
         return serial
 
