@@ -1028,6 +1028,11 @@ class MainWindow(QtGui.QMainWindow):
             cert_view.ui.cert_listview.setItemWidget(item, label)
         item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
         item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
+        cert_serial = line[3][2:]
+        label = QtGui.QLabel()
+        label.setText(u'<b>Серийный номер</b>: %s' % cert_serial)
+        cert_view.ui.cert_listview.setItemWidget(item, label)
+        item = QtGui.QListWidgetItem(cert_view.ui.cert_listview)
         not_valid_before = datetime.strptime(line[5], '%d/%m/%Y  %H:%M:%S ')
         label = QtGui.QLabel()
         label.setText(u'<b>Не действителен до</b>: %s' % datetime.strftime(not_valid_before, '%d.%m.%Y %H:%M:%S'))
