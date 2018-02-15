@@ -270,14 +270,20 @@ def get_store_certs(store):
         output = certmgr.communicate()[0]
         m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x\w+?)\nSHA1 Hash.*?(\w+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC', output, re.MULTILINE + re.DOTALL)
     else:
-        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(get_cspversion()[2]) >= versiontuple("4.0.9708") else '-verbose' , '-store', store], stdout=subprocess.PIPE)
+        if versiontuple(get_cspversion()[2]) >= versiontuple("4.0.9708"):
+            certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-store', store], stdout=subprocess.PIPE)
+        else:
+            certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-verbose', '-store', store], stdout = subprocess.PIPE)
         output = certmgr.communicate()[0]
         m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x\w+?)\nSHA1 Hash.*?(\w+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC.+?Extended Key Usage.*?([\d\.\s]+)\n', output, re.MULTILINE + re.DOTALL)
     return m
 
 
 def list_cert(cert):
-    certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '' if versiontuple(get_cspversion()[2]) >= versiontuple("4.0.9708") else '-verbose', '-cont', cert], stdout=subprocess.PIPE)
+    if versiontuple(get_cspversion()[2]) >= versiontuple("4.0.9708"):
+        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-cont', cert], stdout=subprocess.PIPE)
+    else:
+        certmgr = subprocess.Popen(['/opt/cprocsp/bin/%s/certmgr' % arch, '-list', '-verbose', '-cont', cert], stdout=subprocess.PIPE)
     output = certmgr.communicate()[0]
     m = re.findall(r'(\d+)-{7}\nIssuer.*?: (.+?)\n.*?Subject.*?: (.+?)\n.*?Serial.*?: (0x.+?)\nSHA1 Hash.*?(.+?)\n.*?Not valid before.*?(\d.+?)UTC\nNot valid after.*?(\d.+?)UTC.+?Extended Key Usage.*?([\d\.\s]+)\n',
         output, re.MULTILINE + re.DOTALL)
