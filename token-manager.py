@@ -814,7 +814,6 @@ class MainWindow(QtGui.QMainWindow):
                         ok, tries = change_user_pin(old_pin, new_pin)
                         if ok:
                             QtGui.QMessageBox.information(self, u"Cообщение", u"PIN-код успешно изменен")
-                            add_ini(new_pin, self.cont_id)
                         else:
                             QtGui.QMessageBox.warning(self, u'Ошибка', u"PIN-код введен неверно\nОсталось попыток: %s" %
                                                       tries)
