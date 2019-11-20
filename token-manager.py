@@ -215,6 +215,8 @@ if platform.machine() == 'x86_64':
     arch = 'amd64'
 elif platform.machine() == 'i686':
     arch = 'ia32'
+elif  platform.machine() == 'e2k':
+    arch = 'e2k64'
 else:
     exit(-1)
 
